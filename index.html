@@ -138,6 +138,7 @@ const INDEX_FILE_NAME = "katalog-index.json";
 (function(){
   var accessToken = null;
   var tokenClient = null;
+  var isSilentAuthAttempt = false;
   var folderId = null;
   var indexFileId = null;
   var products = []; // {id, name, note, imageFileId, createdAt}
@@ -166,15 +167,24 @@ const INDEX_FILE_NAME = "katalog-index.json";
       scope: DRIVE_SCOPE,
       callback: async function(resp){
         if(resp.error){
-          authErr.innerHTML = '<div class="err">Giriş başarısız: ' + escapeHtml(resp.error) + '</div>';
+          if(!isSilentAuthAttempt){
+            authErr.innerHTML = '<div class="err">Giriş başarısız: ' + escapeHtml(resp.error) + '</div>';
+          }
+          isSilentAuthAttempt = false;
           googleLoginBtn.disabled = false;
           googleLoginBtn.textContent = 'Google ile Giriş Yap';
           return;
         }
+        isSilentAuthAttempt = false;
         accessToken = resp.access_token;
         await onSignedIn();
       }
     });
+
+    // Google oturumu ve daha önce verilmiş izin varsa, sayfa yenilendiğinde
+    // kullanıcıyı tekrar düğmeye basmaya zorlamadan yeniden bağlan.
+    isSilentAuthAttempt = true;
+    tokenClient.requestAccessToken({ prompt: '' });
   }
 
   googleLoginBtn.addEventListener('click', function(){
