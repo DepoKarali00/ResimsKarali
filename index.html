@@ -26,6 +26,14 @@
   .addbtn{background:var(--ink);color:var(--paper);border:none;border-radius:12px;padding:0 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
   .addbtn:hover{background:var(--rose-dark);}
   .addbtn:disabled{opacity:0.5;cursor:not-allowed;}
+  .catalogbar{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-top:2px;scrollbar-width:none;}
+  .catalogbar::-webkit-scrollbar{display:none;}
+  .catalog-chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:999px;padding:9px 13px;font:600 13px 'Inter',sans-serif;white-space:nowrap;cursor:pointer;}
+  .catalog-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .catalog-chip.new{border-style:dashed;color:var(--rose-dark);}
+  .catalog-hint{font-size:12px;color:var(--ink-soft);margin:0 0 8px;}
+  .suggestions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+  .suggestion{border:1px solid var(--line);background:#FBF8F4;border-radius:999px;padding:7px 10px;font:500 12px 'Inter',sans-serif;color:var(--ink-soft);cursor:pointer;}
 
   .count{color:var(--ink-soft);font-size:13px;margin:0 0 14px;}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;}
@@ -115,6 +123,8 @@
     <input type="text" id="searchInput" placeholder="Ürün ismi yaz... (örn. mavi kot ceket)" autocomplete="off">
     <button class="addbtn" id="openAddBtn">+ Ürün Ekle</button>
   </div>
+  <div id="catalogBar" class="catalogbar" aria-label="Kataloglar"></div>
+  <p id="catalogHint" class="catalog-hint"></p>
 
   <p class="count" id="countLine"></p>
   <div id="content"></div>
@@ -142,6 +152,8 @@ const INDEX_FILE_NAME = "katalog-index.json";
   var folderId = null;
   var indexFileId = null;
   var products = []; // {id, name, note, imageFileId, createdAt}
+  var catalogs = []; // {id, name, icon, createdAt}
+  var activeCatalogId = 'all';
   var imgUrlCache = {}; // fileId -> objectURL
 
   var authScreen = document.getElementById('authScreen');
@@ -153,6 +165,8 @@ const INDEX_FILE_NAME = "katalog-index.json";
   var searchInput = document.getElementById('searchInput');
   var modalRoot = document.getElementById('modalRoot');
   var addBtn = document.getElementById('openAddBtn');
+  var catalogBar = document.getElementById('catalogBar');
+  var catalogHint = document.getElementById('catalogHint');
 
   function escapeHtml(s){
     return (s||'').replace(/[&<>"']/g, function(c){
@@ -276,7 +290,7 @@ const INDEX_FILE_NAME = "katalog-index.json";
       JSON.stringify(metadata) + '\r\n' +
       '--' + boundary + '\r\n' +
       'Content-Type: application/json\r\n\r\n' +
-      JSON.stringify({ products: [] }) + '\r\n' +
+      JSON.stringify({ catalogs: [{id:'general',name:'Genel',icon:'✦',createdAt:Date.now()}], products: [] }) + '\r\n' +
       '--' + boundary + '--';
     var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
       method: 'POST',
@@ -291,6 +305,8 @@ const INDEX_FILE_NAME = "katalog-index.json";
     var res = await driveFetch('https://www.googleapis.com/drive/v3/files/' + indexFileId + '?alt=media');
     var json = await res.json();
     products = (json && json.products) ? json.products : [];
+    catalogs = (json && json.catalogs && json.catalogs.length) ? json.catalogs : [{id:'general',name:'Genel',icon:'✦',createdAt:Date.now()}];
+    products.forEach(function(p){ if(!p.catalogId) p.catalogId = 'general'; });
     products.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
   }
 
@@ -298,7 +314,7 @@ const INDEX_FILE_NAME = "katalog-index.json";
     var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files/' + indexFileId + '?uploadType=media', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ products: products })
+      body: JSON.stringify({ catalogs: catalogs, products: products })
     });
     if(!res.ok) throw new Error('index kaydedilemedi');
   }
@@ -381,27 +397,83 @@ const INDEX_FILE_NAME = "katalog-index.json";
   }
   function currentFiltered(){
     var q = searchInput.value.trim().toLocaleLowerCase('tr');
-    if(!q) return products;
     return products.filter(function(p){
+      if(activeCatalogId !== 'all' && p.catalogId !== activeCatalogId) return false;
+      if(!q) return true;
       var hay = ((p.name||'') + ' ' + (p.note||'')).toLocaleLowerCase('tr');
       return hay.indexOf(q) !== -1;
     });
   }
+  function activeCatalog(){ return catalogs.find(function(c){ return c.id === activeCatalogId; }); }
+  function renderCatalogs(){
+    var html = '<button class="catalog-chip ' + (activeCatalogId === 'all' ? 'active' : '') + '" data-catalog="all">Tümü</button>';
+    catalogs.forEach(function(c){
+      html += '<button class="catalog-chip ' + (activeCatalogId === c.id ? 'active' : '') + '" data-catalog="' + c.id + '">' + escapeHtml(c.icon || '✦') + ' ' + escapeHtml(c.name) + '</button>';
+    });
+    html += '<button class="catalog-chip new" id="newCatalogBtn">+ Katalog</button>';
+    catalogBar.innerHTML = html;
+    Array.prototype.forEach.call(catalogBar.querySelectorAll('[data-catalog]'), function(btn){
+      btn.addEventListener('click', function(){ activeCatalogId = btn.getAttribute('data-catalog'); refresh(); });
+    });
+    document.getElementById('newCatalogBtn').addEventListener('click', openCatalogModal);
+  }
   function refresh(){
     var filtered = currentFiltered();
-    countLine.textContent = products.length + ' ürün kayıtlı' + (searchInput.value.trim() ? ' · ' + filtered.length + ' eşleşme' : '');
+    var catalog = activeCatalog();
+    catalogHint.textContent = catalog ? (catalog.icon || '✦') + ' ' + catalog.name + ' kataloğu' : 'Tüm kataloglar';
+    renderCatalogs();
+    countLine.textContent = filtered.length + ' ürün gösteriliyor' + (searchInput.value.trim() ? ' · arama sonucu' : '');
     if(filtered.length === 0) renderEmpty(!!searchInput.value.trim());
     else renderGrid(filtered);
   }
   searchInput.addEventListener('input', refresh);
 
+  // ---------- CATALOGS ----------
+  function openCatalogModal(){
+    modalRoot.innerHTML =
+      '<div class="overlay" id="catalogOv"><div class="modal">' +
+        '<h2>Yeni Katalog</h2><div id="catalogErr"></div>' +
+        '<div class="field"><label>Katalog adı</label><input type="text" id="catalogName" placeholder="örn. Marvel koleksiyonu"></div>' +
+        '<div class="field"><label>Simge (opsiyonel)</label><input type="text" id="catalogIcon" maxlength="4" value="✦" placeholder="örn. ⚡"></div>' +
+        '<p class="catalog-hint">Fikirler</p><div class="suggestions">' +
+          '<button class="suggestion" data-name="Marvel" data-icon="🦸">🦸 Marvel</button>' +
+          '<button class="suggestion" data-name="The Boys" data-icon="⚡">⚡ The Boys</button>' +
+          '<button class="suggestion" data-name="Anime" data-icon="🌸">🌸 Anime</button>' +
+          '<button class="suggestion" data-name="Film & Dizi" data-icon="🎬">🎬 Film & Dizi</button>' +
+          '<button class="suggestion" data-name="Vintage" data-icon="🪩">🪩 Vintage</button>' +
+        '</div>' +
+        '<div class="modal-actions"><button class="btn ghost" id="cancelCatalog">Vazgeç</button><button class="btn primary" id="saveCatalog">Oluştur</button></div>' +
+      '</div></div>';
+    var ov = document.getElementById('catalogOv');
+    var nameInput = document.getElementById('catalogName');
+    var iconInput = document.getElementById('catalogIcon');
+    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
+    document.getElementById('cancelCatalog').addEventListener('click', closeModal);
+    Array.prototype.forEach.call(document.querySelectorAll('.suggestion'), function(btn){
+      btn.addEventListener('click', function(){ nameInput.value = btn.dataset.name; iconInput.value = btn.dataset.icon; nameInput.focus(); });
+    });
+    document.getElementById('saveCatalog').addEventListener('click', async function(){
+      var name = nameInput.value.trim();
+      if(!name){ document.getElementById('catalogErr').innerHTML = '<div class="err">Katalog adı yaz.</div>'; return; }
+      var duplicate = catalogs.some(function(c){ return c.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'); });
+      if(duplicate){ document.getElementById('catalogErr').innerHTML = '<div class="err">Bu isimde bir katalog zaten var.</div>'; return; }
+      var btn = document.getElementById('saveCatalog'); btn.disabled = true; btn.textContent = 'Oluşturuluyor...';
+      try{
+        var catalog = {id:'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7), name:name, icon:iconInput.value.trim() || '✦', createdAt:Date.now()};
+        catalogs.push(catalog); activeCatalogId = catalog.id; await saveIndex(); closeModal(); refresh();
+      }catch(e){ document.getElementById('catalogErr').innerHTML = '<div class="err">Katalog kaydedilemedi.</div>'; btn.disabled = false; btn.textContent = 'Oluştur'; }
+    });
+  }
+
   // ---------- ADD MODAL ----------
   function openAddModal(){
     var imgDataUrl = null;
+    var targetCatalogId = activeCatalogId === 'all' ? 'general' : activeCatalogId;
     modalRoot.innerHTML =
       '<div class="overlay" id="ov"><div class="modal">' +
         '<h2>Yeni Ürün Ekle</h2>' +
         '<div id="addErr"></div>' +
+        '<p class="catalog-hint">Katalog: ' + escapeHtml((catalogs.find(function(c){ return c.id === targetCatalogId; }) || {name:'Genel',icon:'✦'}).icon) + ' ' + escapeHtml((catalogs.find(function(c){ return c.id === targetCatalogId; }) || {name:'Genel'}).name) + '</p>' +
         '<div class="field"><label>Fotoğraf</label>' +
           '<label class="drop" id="drop"><span id="dropText">Fotoğraf seçmek için dokun</span><input type="file" accept="image/*" id="fileInput"></label>' +
         '</div>' +
@@ -456,6 +528,7 @@ const INDEX_FILE_NAME = "katalog-index.json";
           name: name,
           note: noteInput.value.trim(),
           imageFileId: imageFileId,
+          catalogId: targetCatalogId,
           createdAt: Date.now()
         };
         products.unshift(record);
