@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stok Kataloğum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6F1; --ink:#241F1C; --ink-soft:#6B625B; --line:#E4DCD2;
+    --rose:#B8636E; --rose-dark:#96434D; --card:#FFFFFF; --danger:#B4433E;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 80px;}
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:22px;}
+  .htext h1{font-family:'Fraunces',serif;font-weight:600;font-size:32px;margin:0;letter-spacing:-0.01em;}
+  .htext .sub{color:var(--ink-soft);font-size:14px;margin:2px 0 0;}
+  .logout{background:none;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;white-space:nowrap;}
+  .logout:hover{background:#F1EBE3;}
+
+  .searchbar{display:flex;gap:10px;margin:22px 0 18px;}
+  .searchbar input{flex:1;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:16px;font-family:'Inter',sans-serif;color:var(--ink);}
+  .searchbar input:focus{outline:2px solid var(--rose);outline-offset:1px;}
+  .addbtn{background:var(--ink);color:var(--paper);border:none;border-radius:12px;padding:0 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .addbtn:hover{background:var(--rose-dark);}
+  .addbtn:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .count{color:var(--ink-soft);font-size:13px;margin:0 0 14px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;}
+  .tag-card{background:var(--card);border-radius:14px;border:1px solid var(--line);overflow:hidden;position:relative;display:flex;flex-direction:column;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;}
+  .tag-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(36,31,28,0.08);}
+  .tag-hole{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:var(--paper);border:1.5px solid var(--line);z-index:2;}
+  .tag-img-wrap{width:100%;aspect-ratio:1/1;background:#F1EBE3;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .tag-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+  .tag-img-wrap .ph{color:var(--ink-soft);font-size:11px;}
+  .tag-body{padding:10px 12px 12px;}
+  .tag-name{font-size:14px;font-weight:600;line-height:1.3;margin:0 0 2px;word-break:break-word;}
+  .tag-note{font-size:12px;color:var(--ink-soft);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+  .empty .big{font-family:'Fraunces',serif;font-size:20px;color:var(--ink);}
+
+  .loading{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:14px;padding:30px 0;justify-content:center;}
+  .spinner{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--rose);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .overlay{position:fixed;inset:0;background:rgba(36,31,28,0.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;}
+  @media(min-width:640px){.overlay{align-items:center;}}
+  .modal{background:var(--card);width:100%;max-width:440px;border-radius:20px 20px 0 0;padding:24px 22px 28px;max-height:90vh;overflow-y:auto;}
+  @media(min-width:640px){.modal{border-radius:20px;}}
+  .modal h2{font-family:'Fraunces',serif;font-size:22px;margin:0 0 16px;font-weight:600;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
+  .field input[type=text], .field textarea{
+    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);font-size:15px;font-family:'Inter',sans-serif;color:var(--ink);resize:vertical;
+  }
+  .field textarea{min-height:60px;}
+  .field input:focus, .field textarea:focus{outline:2px solid var(--rose);outline-offset:1px;}
+
+  .drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer;color:var(--ink-soft);font-size:13px;background:#FBF8F4;}
+  .drop.has-img{padding:0;border-style:solid;overflow:hidden;}
+  .drop img{width:100%;max-height:220px;object-fit:cover;display:block;}
+  .drop input{display:none;}
+
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .btn{flex:1;padding:13px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;}
+  .btn.primary{background:var(--ink);color:var(--paper);}
+  .btn.primary:hover{background:var(--rose-dark);}
+  .btn.ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);}
+  .btn.ghost:hover{background:#F1EBE3;}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+  .err{background:#FBEAE9;color:var(--danger);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px;}
+  .detail-img{width:100%;border-radius:12px;overflow:hidden;margin-bottom:14px;background:#F1EBE3;min-height:120px;display:flex;align-items:center;justify-content:center;}
+  .detail-img img{width:100%;display:block;}
+  .detail-note{color:var(--ink-soft);font-size:14px;line-height:1.5;margin:0 0 4px;}
+
+  /* Auth screen */
+  .authwrap{max-width:380px;margin:80px auto;padding:0 20px;text-align:center;}
+  .authcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:32px 24px;}
+  .authcard h1{font-family:'Fraunces',serif;font-size:26px;margin:0 0 6px;}
+  .authcard p.sub{color:var(--ink-soft);font-size:13px;margin:0 0 24px;}
+  .gbtn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    background:var(--ink);color:var(--paper);border:none;border-radius:10px;
+    padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;width:100%;
+  }
+  .gbtn:hover{background:var(--rose-dark);}
+  .gbtn:disabled{opacity:0.6;cursor:not-allowed;}
+</style>
+</head>
+<body>
+
+<div id="authScreen" class="authwrap">
+  <div class="authcard">
+    <h1>Stok Kataloğum</h1>
+    <p class="sub">Ürünlerin Google Drive hesabında saklanır. Devam etmek için giriş yap.</p>
+    <div id="authErr"></div>
+    <button class="gbtn" id="googleLoginBtn">Google ile Giriş Yap</button>
+  </div>
+</div>
+
+<div id="app" class="wrap" style="display:none;">
+  <header>
+    <div class="htext">
+      <h1>Stok Kataloğum</h1>
+      <p class="sub" id="userEmailLine"></p>
+    </div>
+    <button class="logout" id="logoutBtn">Çıkış yap</button>
+  </header>
+
+  <div class="searchbar">
+    <input type="text" id="searchInput" placeholder="Ürün ismi yaz... (örn. mavi kot ceket)" autocomplete="off">
+    <button class="addbtn" id="openAddBtn">+ Ürün Ekle</button>
+  </div>
+
+  <p class="count" id="countLine"></p>
+  <div id="content"></div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script src="https://accounts.google.com/gsi/client"></script>
+<script>
+/* =======================================================
+   BURAYA KENDİ GOOGLE OAUTH CLIENT ID'Nİ YAPIŞTIR
+   Google Cloud Console > APIs & Services > Credentials
+   ======================================================= */
+const GOOGLE_CLIENT_ID = "260974352578-9mdsup8p2dbcav2cl5uklhmhoh23ks6o.apps.googleusercontent.com";
+/* ======================================================= */
+
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
+const FOLDER_NAME = "Stok Kataloğum";
+const INDEX_FILE_NAME = "katalog-index.json";
+
+(function(){
+  var accessToken = null;
+  var tokenClient = null;
+  var folderId = null;
+  var indexFileId = null;
+  var products = []; // {id, name, note, imageFileId, createdAt}
+  var imgUrlCache = {}; // fileId -> objectURL
+
+  var authScreen = document.getElementById('authScreen');
+  var authErr = document.getElementById('authErr');
+  var googleLoginBtn = document.getElementById('googleLoginBtn');
+  var app = document.getElementById('app');
+  var content = document.getElementById('content');
+  var countLine = document.getElementById('countLine');
+  var searchInput = document.getElementById('searchInput');
+  var modalRoot = document.getElementById('modalRoot');
+  var addBtn = document.getElementById('openAddBtn');
+
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  // ---------- GOOGLE SIGN-IN ----------
+  function initTokenClient(){
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: DRIVE_SCOPE,
+      callback: async function(resp){
+        if(resp.error){
+          authErr.innerHTML = '<div class="err">Giriş başarısız: ' + escapeHtml(resp.error) + '</div>';
+          googleLoginBtn.disabled = false;
+          googleLoginBtn.textContent = 'Google ile Giriş Yap';
+          return;
+        }
+        accessToken = resp.access_token;
+        await onSignedIn();
+      }
+    });
+  }
+
+  googleLoginBtn.addEventListener('click', function(){
+    authErr.innerHTML = '';
+    googleLoginBtn.disabled = true;
+    googleLoginBtn.textContent = 'Bağlanıyor...';
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    if(accessToken){
+      google.accounts.oauth2.revoke(accessToken, function(){});
+    }
+    accessToken = null;
+    folderId = null;
+    indexFileId = null;
+    products = [];
+    app.style.display = 'none';
+    authScreen.style.display = 'block';
+    googleLoginBtn.disabled = false;
+    googleLoginBtn.textContent = 'Google ile Giriş Yap';
+  });
+
+  async function onSignedIn(){
+    authScreen.style.display = 'none';
+    app.style.display = 'block';
+    renderLoading('Drive hazırlanıyor...');
+    try{
+      var userInfo = await driveFetch('https://www.googleapis.com/oauth2/v3/userinfo');
+      var userJson = await userInfo.json();
+      document.getElementById('userEmailLine').textContent = userJson.email || '';
+    }catch(e){ /* not critical */ }
+
+    try{
+      await ensureFolderAndIndex();
+      await loadIndex();
+      refresh();
+    }catch(e){
+      content.innerHTML = '<div class="err">Drive hazırlanırken sorun oldu: ' + escapeHtml(e.message || 'bilinmeyen hata') + '</div>';
+    }
+  }
+
+  // ---------- DRIVE HELPERS ----------
+  async function driveFetch(url, options){
+    options = options || {};
+    options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + accessToken });
+    var res = await fetch(url, options);
+    if(res.status === 401){
+      // token expired - ask user to sign in again
+      throw new Error('Oturum süresi doldu, lütfen tekrar giriş yap.');
+    }
+    return res;
+  }
+
+  async function ensureFolderAndIndex(){
+    // find folder
+    var q = encodeURIComponent("mimeType='application/vnd.google-apps.folder' and name='" + FOLDER_NAME + "' and trashed=false");
+    var r = await driveFetch('https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id,name)');
+    var data = await r.json();
+    if(data.files && data.files.length > 0){
+      folderId = data.files[0].id;
+    } else {
+      var createRes = await driveFetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
+      });
+      var created = await createRes.json();
+      folderId = created.id;
+    }
+
+    // find index file
+    var q2 = encodeURIComponent("name='" + INDEX_FILE_NAME + "' and '" + folderId + "' in parents and trashed=false");
+    var r2 = await driveFetch('https://www.googleapis.com/drive/v3/files?q=' + q2 + '&fields=files(id,name)');
+    var data2 = await r2.json();
+    if(data2.files && data2.files.length > 0){
+      indexFileId = data2.files[0].id;
+    } else {
+      indexFileId = await createIndexFile();
+    }
+  }
+
+  async function createIndexFile(){
+    var boundary = '-------idx' + Date.now();
+    var metadata = { name: INDEX_FILE_NAME, mimeType: 'application/json', parents: [folderId] };
+    var body =
+      '--' + boundary + '\r\n' +
+      'Content-Type: application/json\r\n\r\n' +
+      JSON.stringify(metadata) + '\r\n' +
+      '--' + boundary + '\r\n' +
+      'Content-Type: application/json\r\n\r\n' +
+      JSON.stringify({ products: [] }) + '\r\n' +
+      '--' + boundary + '--';
+    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'multipart/related; boundary="' + boundary + '"' },
+      body: body
+    });
+    var created = await res.json();
+    return created.id;
+  }
+
+  async function loadIndex(){
+    var res = await driveFetch('https://www.googleapis.com/drive/v3/files/' + indexFileId + '?alt=media');
+    var json = await res.json();
+    products = (json && json.products) ? json.products : [];
+    products.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+  }
+
+  async function saveIndex(){
+    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files/' + indexFileId + '?uploadType=media', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ products: products })
+    });
+    if(!res.ok) throw new Error('index kaydedilemedi');
+  }
+
+  async function uploadImage(dataUrl, name){
+    var base64 = dataUrl.split(',')[1];
+    var boundary = '-------img' + Date.now();
+    var metadata = { name: name + '.jpg', mimeType: 'image/jpeg', parents: [folderId] };
+    var body =
+      '--' + boundary + '\r\n' +
+      'Content-Type: application/json\r\n\r\n' +
+      JSON.stringify(metadata) + '\r\n' +
+      '--' + boundary + '\r\n' +
+      'Content-Type: image/jpeg\r\n' +
+      'Content-Transfer-Encoding: base64\r\n\r\n' +
+      base64 + '\r\n' +
+      '--' + boundary + '--';
+    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'multipart/related; boundary="' + boundary + '"' },
+      body: body
+    });
+    var created = await res.json();
+    if(!created.id) throw new Error('fotoğraf yüklenemedi');
+    return created.id;
+  }
+
+  async function fetchImageUrl(fileId){
+    if(imgUrlCache[fileId]) return imgUrlCache[fileId];
+    var res = await driveFetch('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media');
+    var blob = await res.blob();
+    var url = URL.createObjectURL(blob);
+    imgUrlCache[fileId] = url;
+    return url;
+  }
+
+  // ---------- RENDER ----------
+  function renderLoading(msg){
+    content.innerHTML = '<div class="loading"><div class="spinner"></div>' + escapeHtml(msg || 'Yükleniyor...') + '</div>';
+  }
+  function renderEmpty(isSearch){
+    content.innerHTML =
+      '<div class="empty">' +
+        '<p class="big">' + (isSearch ? 'Eşleşen ürün yok' : 'Henüz ürün eklenmedi') + '</p>' +
+        '<p>' + (isSearch ? 'Farklı bir isimle aramayı dene.' : '"+ Ürün Ekle" ile ilk fotoğrafını yükle.') + '</p>' +
+      '</div>';
+  }
+  function renderGrid(list){
+    var html = '<div class="grid">';
+    list.forEach(function(p){
+      html +=
+        '<div class="tag-card" data-id="' + p.id + '">' +
+          '<div class="tag-hole"></div>' +
+          '<div class="tag-img-wrap" id="img-' + p.id + '"><span class="ph">yükleniyor</span></div>' +
+          '<div class="tag-body">' +
+            '<p class="tag-name">' + escapeHtml(p.name) + '</p>' +
+            (p.note ? '<p class="tag-note">' + escapeHtml(p.note) + '</p>' : '') +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    content.innerHTML = html;
+    Array.prototype.forEach.call(content.querySelectorAll('.tag-card'), function(el){
+      el.addEventListener('click', function(){
+        var p = products.find(function(x){ return x.id === el.getAttribute('data-id'); });
+        if(p) openDetail(p);
+      });
+    });
+    // lazy-load thumbnails
+    list.forEach(function(p){
+      if(!p.imageFileId) return;
+      fetchImageUrl(p.imageFileId).then(function(url){
+        var wrap = document.getElementById('img-' + p.id);
+        if(wrap) wrap.innerHTML = '<img src="' + url + '" alt="' + escapeHtml(p.name) + '">';
+      }).catch(function(){
+        var wrap = document.getElementById('img-' + p.id);
+        if(wrap) wrap.innerHTML = '<span class="ph">yüklenemedi</span>';
+      });
+    });
+  }
+  function currentFiltered(){
+    var q = searchInput.value.trim().toLocaleLowerCase('tr');
+    if(!q) return products;
+    return products.filter(function(p){
+      var hay = ((p.name||'') + ' ' + (p.note||'')).toLocaleLowerCase('tr');
+      return hay.indexOf(q) !== -1;
+    });
+  }
+  function refresh(){
+    var filtered = currentFiltered();
+    countLine.textContent = products.length + ' ürün kayıtlı' + (searchInput.value.trim() ? ' · ' + filtered.length + ' eşleşme' : '');
+    if(filtered.length === 0) renderEmpty(!!searchInput.value.trim());
+    else renderGrid(filtered);
+  }
+  searchInput.addEventListener('input', refresh);
+
+  // ---------- ADD MODAL ----------
+  function openAddModal(){
+    var imgDataUrl = null;
+    modalRoot.innerHTML =
+      '<div class="overlay" id="ov"><div class="modal">' +
+        '<h2>Yeni Ürün Ekle</h2>' +
+        '<div id="addErr"></div>' +
+        '<div class="field"><label>Fotoğraf</label>' +
+          '<label class="drop" id="drop"><span id="dropText">Fotoğraf seçmek için dokun</span><input type="file" accept="image/*" id="fileInput"></label>' +
+        '</div>' +
+        '<div class="field"><label>Ürün ismi</label><input type="text" id="nameInput" placeholder="örn. Siyah deri ceket M beden"></div>' +
+        '<div class="field"><label>Not (opsiyonel)</label><textarea id="noteInput" placeholder="Renk, beden, stok kodu, fiyat vs."></textarea></div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn ghost" id="cancelBtn">Vazgeç</button>' +
+          '<button class="btn primary" id="saveBtn">Kaydet</button>' +
+        '</div>' +
+      '</div></div>';
+
+    var ov = document.getElementById('ov');
+    var drop = document.getElementById('drop');
+    var nameInput = document.getElementById('nameInput');
+    var noteInput = document.getElementById('noteInput');
+    var saveBtn = document.getElementById('saveBtn');
+    var addErr = document.getElementById('addErr');
+
+    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
+    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+
+    function bindFileInput(input){
+      input.addEventListener('change', function(){
+        var file = input.files[0];
+        if(!file) return;
+        addErr.innerHTML = '<div style="color:var(--ink-soft);font-size:13px;margin-bottom:10px;">Fotoğraf hazırlanıyor...</div>';
+        compressImage(file, function(dataUrl){
+          imgDataUrl = dataUrl;
+          addErr.innerHTML = '';
+          drop.classList.add('has-img');
+          drop.innerHTML = '<img src="' + dataUrl + '"><input type="file" accept="image/*" id="fileInput" style="display:none;">';
+          bindFileInput(document.getElementById('fileInput'));
+        }, function(err){
+          addErr.innerHTML = '<div class="err">Fotoğraf işlenemedi: ' + escapeHtml(err) + '</div>';
+        });
+      });
+    }
+    bindFileInput(document.getElementById('fileInput'));
+
+    saveBtn.addEventListener('click', async function(){
+      var name = nameInput.value.trim();
+      if(!name){ addErr.innerHTML = '<div class="err">Lütfen ürün ismi gir.</div>'; return; }
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Kaydediliyor...';
+      try{
+        var imageFileId = null;
+        if(imgDataUrl){
+          imageFileId = await uploadImage(imgDataUrl, name.replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ_\- ]/g,'').slice(0,60) || 'urun');
+        }
+        var record = {
+          id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+          name: name,
+          note: noteInput.value.trim(),
+          imageFileId: imageFileId,
+          createdAt: Date.now()
+        };
+        products.unshift(record);
+        await saveIndex();
+        closeModal();
+        searchInput.value = '';
+        refresh();
+      }catch(e){
+        addErr.innerHTML = '<div class="err">Kaydedilemedi: ' + escapeHtml(e.message || 'bilinmeyen hata') + '</div>';
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Kaydet';
+      }
+    });
+  }
+  function closeModal(){ modalRoot.innerHTML = ''; }
+
+  function openDetail(p){
+    modalRoot.innerHTML =
+      '<div class="overlay" id="ov2"><div class="modal">' +
+        '<h2>' + escapeHtml(p.name) + '</h2>' +
+        '<div class="detail-img" id="detailImgWrap"><span class="ph">yükleniyor...</span></div>' +
+        (p.note ? '<p class="detail-note">' + escapeHtml(p.note) + '</p>' : '') +
+        '<div id="delErr"></div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn ghost" id="closeDetail">Kapat</button>' +
+          '<button class="btn ghost" id="dlBtn" style="display:none;">İndir</button>' +
+          '<button class="btn primary" id="delBtn" style="background:var(--danger)">Sil</button>' +
+        '</div>' +
+      '</div></div>';
+    var ov2 = document.getElementById('ov2');
+    ov2.addEventListener('click', function(e){ if(e.target === ov2) closeModal(); });
+    document.getElementById('closeDetail').addEventListener('click', closeModal);
+
+    if(p.imageFileId){
+      fetchImageUrl(p.imageFileId).then(function(url){
+        var wrap = document.getElementById('detailImgWrap');
+        if(!wrap) return;
+        wrap.innerHTML = '<img src="' + url + '">';
+        var dl = document.getElementById('dlBtn');
+        dl.style.display = 'block';
+        dl.style.textAlign = 'center';
+        dl.addEventListener('click', function(){
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = (p.name || 'urun') + '.jpg';
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        });
+      }).catch(function(){
+        var wrap = document.getElementById('detailImgWrap');
+        if(wrap) wrap.innerHTML = '<span class="ph">fotoğraf yüklenemedi</span>';
+      });
+    } else {
+      document.getElementById('detailImgWrap').innerHTML = '<span class="ph">fotoğraf yok</span>';
+    }
+
+    document.getElementById('delBtn').addEventListener('click', async function(){
+      var btn = document.getElementById('delBtn');
+      btn.disabled = true; btn.textContent = 'Siliniyor...';
+      try{
+        if(p.imageFileId){
+          try{ await driveFetch('https://www.googleapis.com/drive/v3/files/' + p.imageFileId, { method: 'DELETE' }); }catch(e2){}
+        }
+        products = products.filter(function(x){ return x.id !== p.id; });
+        await saveIndex();
+        closeModal();
+        refresh();
+      }catch(e){
+        document.getElementById('delErr').innerHTML = '<div class="err">Silinemedi, tekrar dene.</div>';
+        btn.disabled = false; btn.textContent = 'Sil';
+      }
+    });
+  }
+
+  // Drive dosya boyutu Firestore gibi kısıtlı değil, o yüzden daha az agresif sıkıştırıyoruz.
+  function compressImage(file, onDone, onErr){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxW = 1280;
+        var scale = Math.min(1, maxW / img.width);
+        var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        onDone(dataUrl);
+      };
+      img.onerror = function(){ onErr('geçersiz görsel'); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ onErr('dosya okunamadı'); };
+    reader.readAsDataURL(file);
+  }
+
+  addBtn.addEventListener('click', openAddModal);
+
+  // init once GIS script is ready
+  window.addEventListener('load', initTokenClient);
+})();
+</script>
+</body>
+</html>
