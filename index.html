@@ -4,99 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stok Kataloğum</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Katalog">
+<meta name="theme-color" content="#1D1D1F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#FAF6F1; --ink:#241F1C; --ink-soft:#6B625B; --line:#E4DCD2;
-    --rose:#B8636E; --rose-dark:#96434D; --card:#FFFFFF; --danger:#B4433E;
+    --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --ink-soft:#6E6E73; --line:#E3E3E7;
+    --accent:#0071E3; --accent-dark:#0058B0; --danger:#FF3B30;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.04), 0 2px 10px rgba(0,0,0,.05);
+    --shadow-md:0 16px 40px rgba(0,0,0,.12);
+    --ease:cubic-bezier(.22,1,.36,1);
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
-  .wrap{max-width:900px;margin:0 auto;padding:28px 20px 80px;}
-  header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:22px;}
-  .htext h1{font-family:'Fraunces',serif;font-weight:600;font-size:32px;margin:0;letter-spacing:-0.01em;}
-  .htext .sub{color:var(--ink-soft);font-size:14px;margin:2px 0 0;}
-  .logout{background:none;border:1.5px solid var(--line);color:var(--ink-soft);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer;white-space:nowrap;}
-  .logout:hover{background:#F1EBE3;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:940px;margin:0 auto;padding:0 20px 90px;}
 
-  .searchbar{display:flex;gap:10px;margin:22px 0 18px;}
-  .searchbar input{flex:1;padding:14px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:16px;font-family:'Inter',sans-serif;color:var(--ink);}
-  .searchbar input:focus{outline:2px solid var(--rose);outline-offset:1px;}
-  .addbtn{background:var(--ink);color:var(--paper);border:none;border-radius:12px;padding:0 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;}
-  .addbtn:hover{background:var(--rose-dark);}
-  .addbtn:disabled{opacity:0.5;cursor:not-allowed;}
-  .catalogbar{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-top:2px;scrollbar-width:none;}
+  /* Sticky frosted toolbar */
+  .toolbar-sticky{
+    position:sticky;top:0;z-index:30;
+    background:rgba(245,245,247,0.78);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    margin:0 -20px;padding:0 20px;
+  }
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:26px 0 6px;}
+  .htext h1{
+    font-size:30px;margin:0;font-weight:700;letter-spacing:-0.025em;
+  }
+  .htext .sub{color:var(--ink-soft);font-size:13px;margin:3px 0 0;font-weight:400;}
+  .logout{background:rgba(0,0,0,0.05);border:none;color:var(--ink-soft);border-radius:980px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s var(--ease);}
+  .logout:hover{background:rgba(0,0,0,0.09);}
+
+  .searchbar{display:flex;gap:10px;padding:16px 0 12px;}
+  .searchbar input{
+    flex:1;padding:12px 16px;border-radius:12px;border:none;background:rgba(0,0,0,0.045);
+    font-size:16px;font-family:inherit;color:var(--ink);transition:background .15s var(--ease), box-shadow .15s var(--ease);
+  }
+  .searchbar input::placeholder{color:#9A9AA0;}
+  .searchbar input:focus{outline:none;background:#fff;box-shadow:0 0 0 4px rgba(0,113,227,.16), 0 0 0 1.5px var(--accent);}
+  .addbtn{
+    background:var(--ink);color:#fff;border:none;border-radius:980px;padding:0 20px;
+    font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:transform .12s var(--ease), background .15s;
+  }
+  .addbtn:hover{background:#000;transform:translateY(-1px);}
+  .addbtn:active{transform:translateY(0);}
+  .addbtn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+  .catalogbar{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none;align-items:center;}
   .catalogbar::-webkit-scrollbar{display:none;}
-  .catalog-chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:999px;padding:9px 13px;font:600 13px 'Inter',sans-serif;white-space:nowrap;cursor:pointer;}
-  .catalog-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-  .catalog-chip.new{border-style:dashed;color:var(--rose-dark);}
-  .catalog-hint{font-size:12px;color:var(--ink-soft);margin:0 0 8px;}
+  .catalog-chip{
+    border:none;background:rgba(0,0,0,0.05);color:var(--ink-soft);border-radius:980px;
+    padding:8px 14px;font:600 13px inherit;white-space:nowrap;cursor:pointer;transition:all .15s var(--ease);
+  }
+  .catalog-chip:hover{background:rgba(0,0,0,0.09);}
+  .catalog-chip.active{background:var(--ink);color:#fff;}
+  .catalog-chip.new{background:transparent;border:1.5px dashed var(--line);color:var(--accent);}
+  .catalog-chip.manage{background:transparent;color:var(--ink-soft);font-size:16px;padding:8px 10px;}
+  .catalog-hint{font-size:12px;color:var(--ink-soft);margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  .catalog-hint .manage-link{color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;font-size:12px;padding:0;font-family:inherit;}
   .suggestions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
-  .suggestion{border:1px solid var(--line);background:#FBF8F4;border-radius:999px;padding:7px 10px;font:500 12px 'Inter',sans-serif;color:var(--ink-soft);cursor:pointer;}
+  .suggestion{border:none;background:rgba(0,0,0,0.05);border-radius:980px;padding:7px 11px;font:500 12px inherit;color:var(--ink-soft);cursor:pointer;transition:background .15s;}
+  .suggestion:hover{background:rgba(0,0,0,0.09);}
 
-  .count{color:var(--ink-soft);font-size:13px;margin:0 0 14px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;}
-  .tag-card{background:var(--card);border-radius:14px;border:1px solid var(--line);overflow:hidden;position:relative;display:flex;flex-direction:column;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;}
-  .tag-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(36,31,28,0.08);}
-  .tag-hole{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:var(--paper);border:1.5px solid var(--line);z-index:2;}
-  .tag-img-wrap{width:100%;aspect-ratio:1/1;background:#F1EBE3;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .count{color:var(--ink-soft);font-size:13px;margin:14px 0 14px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px;}
+  .tag-card{
+    background:var(--card);border-radius:20px;border:none;overflow:hidden;position:relative;
+    display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow-sm);
+    transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  .tag-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+  .tag-hole{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:var(--bg);border:1px solid var(--line);z-index:2;}
+  .tag-img-wrap{width:100%;aspect-ratio:1/1;background:#EEEEF0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .tag-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
-  .tag-img-wrap .ph{color:var(--ink-soft);font-size:11px;}
-  .tag-body{padding:10px 12px 12px;}
-  .tag-name{font-size:14px;font-weight:600;line-height:1.3;margin:0 0 2px;word-break:break-word;}
+  .tag-img-wrap .ph{color:#B0B0B5;font-size:11px;}
+  .tag-body{padding:12px 13px 14px;}
+  .tag-name{font-size:14px;font-weight:600;line-height:1.32;margin:0 0 2px;word-break:break-word;letter-spacing:-0.01em;}
   .tag-note{font-size:12px;color:var(--ink-soft);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 
-  .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
-  .empty .big{font-family:'Fraunces',serif;font-size:20px;color:var(--ink);}
+  .empty{text-align:center;padding:70px 20px;color:var(--ink-soft);}
+  .empty .big{font-size:19px;color:var(--ink);font-weight:700;letter-spacing:-0.01em;margin:0 0 6px;}
 
-  .loading{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:14px;padding:30px 0;justify-content:center;}
-  .spinner{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--rose);border-radius:50%;animation:spin .7s linear infinite;}
+  .loading{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:14px;padding:40px 0;justify-content:center;}
+  .spinner{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  .overlay{position:fixed;inset:0;background:rgba(36,31,28,0.45);display:flex;align-items:flex-end;justify-content:center;z-index:50;}
-  @media(min-width:640px){.overlay{align-items:center;}}
-  .modal{background:var(--card);width:100%;max-width:440px;border-radius:20px 20px 0 0;padding:24px 22px 28px;max-height:90vh;overflow-y:auto;}
-  @media(min-width:640px){.modal{border-radius:20px;}}
-  .modal h2{font-family:'Fraunces',serif;font-size:22px;margin:0 0 16px;font-weight:600;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
-  .field input[type=text], .field textarea{
-    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);font-size:15px;font-family:'Inter',sans-serif;color:var(--ink);resize:vertical;
+  .overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    display:flex;align-items:flex-end;justify-content:center;z-index:50;
+    animation:fadeIn .18s var(--ease);
   }
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @media(min-width:640px){.overlay{align-items:center;}}
+  .modal{
+    background:var(--card);width:100%;max-width:440px;border-radius:24px 24px 0 0;
+    padding:26px 24px 30px;max-height:90vh;overflow-y:auto;
+    box-shadow:0 -10px 50px rgba(0,0,0,0.15);
+    animation:slideUp .28s var(--ease);
+  }
+  @keyframes slideUp{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  @media(min-width:640px){.modal{border-radius:24px;}}
+  .modal h2{font-size:21px;margin:0 0 16px;font-weight:700;letter-spacing:-0.02em;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:0.01em;}
+  .field input[type=text], .field textarea, .field select{
+    width:100%;padding:11px 13px;border-radius:12px;border:none;background:rgba(0,0,0,0.045);
+    font-size:15px;font-family:inherit;color:var(--ink);resize:vertical;transition:box-shadow .15s var(--ease), background .15s;
+  }
+  .field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236E6E73'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:32px;}
   .field textarea{min-height:60px;}
-  .field input:focus, .field textarea:focus{outline:2px solid var(--rose);outline-offset:1px;}
+  .field input:focus, .field textarea:focus, .field select:focus{outline:none;background:#fff;box-shadow:0 0 0 4px rgba(0,113,227,.16), 0 0 0 1.5px var(--accent);}
 
-  .drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer;color:var(--ink-soft);font-size:13px;background:#FBF8F4;}
-  .drop.has-img{padding:0;border-style:solid;overflow:hidden;}
+  .drop{border:1.5px dashed var(--line);border-radius:14px;padding:20px;text-align:center;cursor:pointer;color:var(--ink-soft);font-size:13px;background:rgba(0,0,0,0.02);transition:border-color .15s,background .15s;}
+  .drop:hover{border-color:var(--accent);background:rgba(0,113,227,.04);}
+  .drop.has-img{padding:0;border-style:solid;border-color:var(--line);overflow:hidden;}
   .drop img{width:100%;max-height:220px;object-fit:cover;display:block;}
   .drop input{display:none;}
 
   .modal-actions{display:flex;gap:10px;margin-top:18px;}
-  .btn{flex:1;padding:13px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;}
-  .btn.primary{background:var(--ink);color:var(--paper);}
-  .btn.primary:hover{background:var(--rose-dark);}
-  .btn.ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);}
-  .btn.ghost:hover{background:#F1EBE3;}
-  .btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn{flex:1;padding:13px;border-radius:980px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:transform .12s var(--ease), background .15s, opacity .15s;font-family:inherit;}
+  .btn.primary{background:var(--ink);color:#fff;}
+  .btn.primary:hover{background:#000;transform:translateY(-1px);}
+  .btn.ghost{background:rgba(0,0,0,0.05);color:var(--ink);border:none;}
+  .btn.ghost:hover{background:rgba(0,0,0,0.09);}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+  .btn.link{flex:none;background:none;color:var(--accent);padding:6px 0;font-size:13px;}
+  .btn.link:hover{text-decoration:underline;background:none;}
 
-  .err{background:#FBEAE9;color:var(--danger);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px;}
-  .detail-img{width:100%;border-radius:12px;overflow:hidden;margin-bottom:14px;background:#F1EBE3;min-height:120px;display:flex;align-items:center;justify-content:center;}
+  .err{background:#FFF1F0;color:var(--danger);border-radius:10px;padding:9px 13px;font-size:13px;margin-bottom:12px;}
+  .detail-img{width:100%;border-radius:16px;overflow:hidden;margin-bottom:14px;background:#EEEEF0;min-height:120px;display:flex;align-items:center;justify-content:center;}
   .detail-img img{width:100%;display:block;}
   .detail-note{color:var(--ink-soft);font-size:14px;line-height:1.5;margin:0 0 4px;}
 
+  .manage-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .manage-row input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(0,0,0,0.045);font-size:14px;font-family:inherit;color:var(--ink);}
+  .manage-row input:focus{outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.16);}
+  .icon-btn{background:rgba(0,0,0,0.05);border:none;border-radius:10px;width:38px;height:38px;font-size:15px;cursor:pointer;flex-shrink:0;transition:background .15s;}
+  .icon-btn:hover{background:rgba(0,0,0,0.09);}
+  .icon-btn.danger{color:var(--danger);}
+
   /* Auth screen */
-  .authwrap{max-width:380px;margin:80px auto;padding:0 20px;text-align:center;}
-  .authcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:32px 24px;}
-  .authcard h1{font-family:'Fraunces',serif;font-size:26px;margin:0 0 6px;}
-  .authcard p.sub{color:var(--ink-soft);font-size:13px;margin:0 0 24px;}
+  .authwrap{max-width:380px;margin:100px auto;padding:0 20px;text-align:center;}
+  .authcard{background:var(--card);border:none;border-radius:24px;padding:36px 28px;box-shadow:var(--shadow-md);}
+  .authcard h1{font-size:26px;margin:0 0 6px;font-weight:700;letter-spacing:-0.02em;}
+  .authcard p.sub{color:var(--ink-soft);font-size:13px;margin:0 0 26px;line-height:1.5;}
   .gbtn{
     display:inline-flex;align-items:center;justify-content:center;gap:10px;
-    background:var(--ink);color:var(--paper);border:none;border-radius:10px;
-    padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;width:100%;
+    background:var(--ink);color:#fff;border:none;border-radius:980px;
+    padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;width:100%;
+    transition:transform .12s var(--ease), background .15s;
   }
-  .gbtn:hover{background:var(--rose-dark);}
-  .gbtn:disabled{opacity:0.6;cursor:not-allowed;}
+  .gbtn:hover{background:#000;transform:translateY(-1px);}
+  .gbtn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 </style>
 </head>
 <body>
@@ -111,21 +182,23 @@
 </div>
 
 <div id="app" class="wrap" style="display:none;">
-  <header>
-    <div class="htext">
-      <h1>Stok Kataloğum</h1>
-      <p class="sub" id="userEmailLine"></p>
+  <div class="toolbar-sticky">
+    <header>
+      <div class="htext">
+        <h1>Stok Kataloğum</h1>
+        <p class="sub" id="userEmailLine"></p>
+      </div>
+      <button class="logout" id="logoutBtn">Çıkış yap</button>
+    </header>
+
+    <div class="searchbar">
+      <input type="text" id="searchInput" placeholder="Ürün ismi yaz... (örn. mavi kot ceket)" autocomplete="off">
+      <button class="addbtn" id="openAddBtn">+ Ürün Ekle</button>
     </div>
-    <button class="logout" id="logoutBtn">Çıkış yap</button>
-  </header>
-
-  <div class="searchbar">
-    <input type="text" id="searchInput" placeholder="Ürün ismi yaz... (örn. mavi kot ceket)" autocomplete="off">
-    <button class="addbtn" id="openAddBtn">+ Ürün Ekle</button>
+    <div id="catalogBar" class="catalogbar" aria-label="Kataloglar"></div>
   </div>
-  <div id="catalogBar" class="catalogbar" aria-label="Kataloglar"></div>
-  <p id="catalogHint" class="catalog-hint"></p>
 
+  <p id="catalogHint" class="catalog-hint"></p>
   <p class="count" id="countLine"></p>
   <div id="content"></div>
 </div>
@@ -420,7 +493,9 @@ const INDEX_FILE_NAME = "katalog-index.json";
   function refresh(){
     var filtered = currentFiltered();
     var catalog = activeCatalog();
-    catalogHint.textContent = catalog ? (catalog.icon || '✦') + ' ' + catalog.name + ' kataloğu' : 'Tüm kataloglar';
+    var label = catalog ? (catalog.icon || '✦') + ' ' + escapeHtml(catalog.name) + ' kataloğu' : 'Tüm kataloglar';
+    catalogHint.innerHTML = '<span>' + label + '</span><button class="manage-link" id="manageCatalogsBtn">Kataloğları yönet</button>';
+    document.getElementById('manageCatalogsBtn').addEventListener('click', openManageCatalogsModal);
     renderCatalogs();
     countLine.textContent = filtered.length + ' ürün gösteriliyor' + (searchInput.value.trim() ? ' · arama sonucu' : '');
     if(filtered.length === 0) renderEmpty(!!searchInput.value.trim());
@@ -465,15 +540,77 @@ const INDEX_FILE_NAME = "katalog-index.json";
     });
   }
 
+  function openManageCatalogsModal(){
+    function rowsHtml(){
+      return catalogs.map(function(c){
+        var count = products.filter(function(p){ return p.catalogId === c.id; }).length;
+        return '<div class="manage-row" data-id="' + c.id + '">' +
+          '<input type="text" value="' + escapeHtml(c.name) + '" data-field="name" style="max-width:120px;">' +
+          '<input type="text" value="' + escapeHtml(c.icon || '✦') + '" maxlength="4" data-field="icon" style="max-width:48px;text-align:center;">' +
+          '<button class="icon-btn" data-action="save" title="Kaydet">✓</button>' +
+          (c.id !== 'general' ? '<button class="icon-btn danger" data-action="delete" title="Sil">🗑</button>' : '<span style="width:38px;flex-shrink:0;"></span>') +
+        '</div>';
+      }).join('');
+    }
+    modalRoot.innerHTML =
+      '<div class="overlay" id="mgOv"><div class="modal">' +
+        '<h2>Katalogları Yönet</h2>' +
+        '<div id="mgErr"></div>' +
+        '<div id="mgRows">' + rowsHtml() + '</div>' +
+        '<p class="catalog-hint" style="margin-top:12px;">"Genel" katalog silinemez; sildiğin kataloglardaki ürünler otomatik olarak Genel\'e taşınır.</p>' +
+        '<div class="modal-actions"><button class="btn ghost" id="mgClose" style="flex:1;">Kapat</button></div>' +
+      '</div></div>';
+    var ov = document.getElementById('mgOv');
+    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
+    document.getElementById('mgClose').addEventListener('click', closeModal);
+
+    function bindRows(){
+      Array.prototype.forEach.call(document.querySelectorAll('#mgRows [data-action]'), function(btn){
+        btn.addEventListener('click', async function(){
+          var row = btn.closest('.manage-row');
+          var id = row.getAttribute('data-id');
+          var cat = catalogs.find(function(c){ return c.id === id; });
+          document.getElementById('mgErr').innerHTML = '';
+          if(btn.dataset.action === 'save'){
+            var newName = row.querySelector('[data-field="name"]').value.trim();
+            var newIcon = row.querySelector('[data-field="icon"]').value.trim() || '✦';
+            if(!newName){ document.getElementById('mgErr').innerHTML = '<div class="err">Katalog adı boş olamaz.</div>'; return; }
+            cat.name = newName; cat.icon = newIcon;
+            try{ await saveIndex(); refresh(); }
+            catch(e){ document.getElementById('mgErr').innerHTML = '<div class="err">Kaydedilemedi, tekrar dene.</div>'; }
+          } else if(btn.dataset.action === 'delete'){
+            if(!confirm('"' + cat.name + '" kataloğunu silmek istediğine emin misin? İçindeki ürünler Genel\'e taşınacak.')) return;
+            catalogs = catalogs.filter(function(c){ return c.id !== id; });
+            products.forEach(function(p){ if(p.catalogId === id) p.catalogId = 'general'; });
+            if(activeCatalogId === id) activeCatalogId = 'all';
+            try{
+              await saveIndex();
+              document.getElementById('mgRows').innerHTML = rowsHtml();
+              bindRows();
+              refresh();
+            }catch(e){ document.getElementById('mgErr').innerHTML = '<div class="err">Silinemedi, tekrar dene.</div>'; }
+          }
+        });
+      });
+    }
+    bindRows();
+  }
+
   // ---------- ADD MODAL ----------
+  function catalogOptionsHtml(selectedId){
+    return catalogs.map(function(c){
+      return '<option value="' + c.id + '"' + (c.id === selectedId ? ' selected' : '') + '>' + escapeHtml(c.icon || '✦') + ' ' + escapeHtml(c.name) + '</option>';
+    }).join('');
+  }
+
   function openAddModal(){
     var imgDataUrl = null;
-    var targetCatalogId = activeCatalogId === 'all' ? 'general' : activeCatalogId;
+    var defaultCatalogId = activeCatalogId === 'all' ? 'general' : activeCatalogId;
     modalRoot.innerHTML =
       '<div class="overlay" id="ov"><div class="modal">' +
         '<h2>Yeni Ürün Ekle</h2>' +
         '<div id="addErr"></div>' +
-        '<p class="catalog-hint">Katalog: ' + escapeHtml((catalogs.find(function(c){ return c.id === targetCatalogId; }) || {name:'Genel',icon:'✦'}).icon) + ' ' + escapeHtml((catalogs.find(function(c){ return c.id === targetCatalogId; }) || {name:'Genel'}).name) + '</p>' +
+        '<div class="field"><label>Katalog</label><select id="catalogSelect">' + catalogOptionsHtml(defaultCatalogId) + '</select></div>' +
         '<div class="field"><label>Fotoğraf</label>' +
           '<label class="drop" id="drop"><span id="dropText">Fotoğraf seçmek için dokun</span><input type="file" accept="image/*" id="fileInput"></label>' +
         '</div>' +
@@ -528,7 +665,7 @@ const INDEX_FILE_NAME = "katalog-index.json";
           name: name,
           note: noteInput.value.trim(),
           imageFileId: imageFileId,
-          catalogId: targetCatalogId,
+          catalogId: document.getElementById('catalogSelect').value || 'general',
           createdAt: Date.now()
         };
         products.unshift(record);
@@ -545,6 +682,88 @@ const INDEX_FILE_NAME = "katalog-index.json";
   }
   function closeModal(){ modalRoot.innerHTML = ''; }
 
+  function openEditModal(p){
+    var newImgDataUrl = null;
+    var removedOldImage = false;
+    modalRoot.innerHTML =
+      '<div class="overlay" id="ovEdit"><div class="modal">' +
+        '<h2>Ürünü Düzenle</h2>' +
+        '<div id="editErr"></div>' +
+        '<div class="field"><label>Katalog</label><select id="editCatalogSelect">' + catalogOptionsHtml(p.catalogId) + '</select></div>' +
+        '<div class="field"><label>Fotoğraf</label>' +
+          '<label class="drop has-img" id="editDrop">' +
+            (p.imageFileId ? '<img id="editPreviewImg" src="" alt="">' : '<span id="dropText">Fotoğraf seçmek için dokun</span>') +
+            '<input type="file" accept="image/*" id="editFileInput">' +
+          '</label>' +
+        '</div>' +
+        '<div class="field"><label>Ürün ismi</label><input type="text" id="editNameInput" value="' + escapeHtml(p.name) + '"></div>' +
+        '<div class="field"><label>Not (opsiyonel)</label><textarea id="editNoteInput">' + escapeHtml(p.note || '') + '</textarea></div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn ghost" id="editCancelBtn">Vazgeç</button>' +
+          '<button class="btn primary" id="editSaveBtn">Kaydet</button>' +
+        '</div>' +
+      '</div></div>';
+
+    var ov = document.getElementById('ovEdit');
+    var drop = document.getElementById('editDrop');
+    var editErr = document.getElementById('editErr');
+    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
+    document.getElementById('editCancelBtn').addEventListener('click', closeModal);
+
+    if(p.imageFileId){
+      fetchImageUrl(p.imageFileId).then(function(url){
+        var img = document.getElementById('editPreviewImg');
+        if(img) img.src = url;
+      }).catch(function(){});
+    }
+
+    function bindFileInput(input){
+      input.addEventListener('change', function(){
+        var file = input.files[0];
+        if(!file) return;
+        editErr.innerHTML = '<div style="color:var(--ink-soft);font-size:13px;margin-bottom:10px;">Fotoğraf hazırlanıyor...</div>';
+        compressImage(file, function(dataUrl){
+          newImgDataUrl = dataUrl;
+          removedOldImage = true;
+          editErr.innerHTML = '';
+          drop.classList.add('has-img');
+          drop.innerHTML = '<img src="' + dataUrl + '"><input type="file" accept="image/*" id="editFileInput" style="display:none;">';
+          bindFileInput(document.getElementById('editFileInput'));
+        }, function(err){
+          editErr.innerHTML = '<div class="err">Fotoğraf işlenemedi: ' + escapeHtml(err) + '</div>';
+        });
+      });
+    }
+    bindFileInput(document.getElementById('editFileInput'));
+
+    document.getElementById('editSaveBtn').addEventListener('click', async function(){
+      var name = document.getElementById('editNameInput').value.trim();
+      if(!name){ editErr.innerHTML = '<div class="err">Lütfen ürün ismi gir.</div>'; return; }
+      var btn = document.getElementById('editSaveBtn');
+      btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+      try{
+        var newImageFileId = p.imageFileId;
+        if(newImgDataUrl){
+          newImageFileId = await uploadImage(newImgDataUrl, name.replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ_\- ]/g,'').slice(0,60) || 'urun');
+          if(p.imageFileId && removedOldImage){
+            try{ await driveFetch('https://www.googleapis.com/drive/v3/files/' + p.imageFileId, { method: 'DELETE' }); }catch(e2){}
+            delete imgUrlCache[p.imageFileId];
+          }
+        }
+        p.name = name;
+        p.note = document.getElementById('editNoteInput').value.trim();
+        p.catalogId = document.getElementById('editCatalogSelect').value || 'general';
+        p.imageFileId = newImageFileId;
+        await saveIndex();
+        closeModal();
+        refresh();
+      }catch(e){
+        editErr.innerHTML = '<div class="err">Kaydedilemedi: ' + escapeHtml(e.message || 'bilinmeyen hata') + '</div>';
+        btn.disabled = false; btn.textContent = 'Kaydet';
+      }
+    });
+  }
+
   function openDetail(p){
     modalRoot.innerHTML =
       '<div class="overlay" id="ov2"><div class="modal">' +
@@ -554,13 +773,17 @@ const INDEX_FILE_NAME = "katalog-index.json";
         '<div id="delErr"></div>' +
         '<div class="modal-actions">' +
           '<button class="btn ghost" id="closeDetail">Kapat</button>' +
+          '<button class="btn ghost" id="editBtn">Düzenle</button>' +
           '<button class="btn ghost" id="dlBtn" style="display:none;">İndir</button>' +
-          '<button class="btn primary" id="delBtn" style="background:var(--danger)">Sil</button>' +
+        '</div>' +
+        '<div class="modal-actions" style="margin-top:8px;">' +
+          '<button class="btn ghost" id="delBtn" style="color:var(--danger);">Ürünü Sil</button>' +
         '</div>' +
       '</div></div>';
     var ov2 = document.getElementById('ov2');
     ov2.addEventListener('click', function(e){ if(e.target === ov2) closeModal(); });
     document.getElementById('closeDetail').addEventListener('click', closeModal);
+    document.getElementById('editBtn').addEventListener('click', function(){ openEditModal(p); });
 
     if(p.imageFileId){
       fetchImageUrl(p.imageFileId).then(function(url){
