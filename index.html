@@ -16,168 +16,305 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F5F5F7; --card:#FFFFFF; --ink:#1D1D1F; --ink-soft:#6E6E73; --line:#E3E3E7;
-    --accent:#0071E3; --accent-dark:#0058B0; --danger:#FF3B30;
-    --shadow-sm:0 1px 2px rgba(0,0,0,.04), 0 2px 10px rgba(0,0,0,.05);
-    --shadow-md:0 16px 40px rgba(0,0,0,.12);
+    --bg:#F2F2F5;
+    --card:#FFFFFF;
+    --ink:#1D1D1F;
+    --ink-soft:#6E6E73;
+    --line:#E3E3E7;
+    --accent:#0071E3;
+    --accent-dark:#0058B0;
+    --danger:#FF3B30;
+    --success:#30D158;
+    --shadow-sm:0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-md:0 20px 60px rgba(0,0,0,.14);
     --ease:cubic-bezier(.22,1,.36,1);
+    --ease-spring:cubic-bezier(.34,1.56,.64,1);
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{
     margin:0;background:var(--bg);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter',system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
+    -webkit-font-smoothing:antialiased;overscroll-behavior:none;
   }
-  .wrap{max-width:940px;margin:0 auto;padding:0 20px 90px;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 16px 100px;}
 
-  /* Sticky frosted toolbar */
+  /* ── Toolbar ── */
   .toolbar-sticky{
     position:sticky;top:0;z-index:30;
-    background:rgba(245,245,247,0.78);
-    backdrop-filter:blur(20px) saturate(180%);
-    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    background:rgba(242,242,245,0.82);
+    backdrop-filter:blur(24px) saturate(200%);
+    -webkit-backdrop-filter:blur(24px) saturate(200%);
     border-bottom:1px solid rgba(0,0,0,0.06);
-    margin:0 -20px;padding:0 20px;
+    margin:0 -16px;padding:0 16px;
   }
-  header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:26px 0 6px;}
-  .htext h1{
-    font-size:30px;margin:0;font-weight:700;letter-spacing:-0.025em;
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 0 8px;}
+  .htext{display:flex;align-items:center;gap:10px;}
+  .htext h1{font-size:26px;margin:0;font-weight:700;letter-spacing:-0.03em;line-height:1;}
+  .htext .sub{color:var(--ink-soft);font-size:12px;font-weight:400;}
+  .header-right{display:flex;align-items:center;gap:8px;}
+  .logout{
+    background:rgba(0,0,0,0.05);border:none;color:var(--ink-soft);
+    border-radius:980px;padding:7px 14px;font-size:13px;font-weight:600;
+    cursor:pointer;white-space:nowrap;transition:background .15s var(--ease);
   }
-  .htext .sub{color:var(--ink-soft);font-size:13px;margin:3px 0 0;font-weight:400;}
-  .logout{background:rgba(0,0,0,0.05);border:none;color:var(--ink-soft);border-radius:980px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s var(--ease);}
   .logout:hover{background:rgba(0,0,0,0.09);}
 
-  .searchbar{display:flex;gap:10px;padding:16px 0 12px;}
+  /* cache badge */
+  #cacheBadge{
+    display:none;align-items:center;gap:5px;
+    background:rgba(48,209,88,.12);color:#1a7a34;
+    border-radius:980px;padding:5px 10px;font-size:11px;font-weight:600;
+  }
+  #cacheBadge.show{display:flex;}
+  #cacheBadge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);}
+
+  .searchbar{display:flex;gap:10px;padding:12px 0 10px;}
+  .search-wrap{
+    flex:1;position:relative;
+  }
+  .search-icon{
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    color:#9A9AA0;font-size:15px;pointer-events:none;
+  }
   .searchbar input{
-    flex:1;padding:12px 16px;border-radius:12px;border:none;background:rgba(0,0,0,0.045);
-    font-size:16px;font-family:inherit;color:var(--ink);transition:background .15s var(--ease), box-shadow .15s var(--ease);
+    width:100%;padding:11px 16px 11px 38px;border-radius:14px;border:none;
+    background:rgba(0,0,0,0.055);font-size:15px;font-family:inherit;color:var(--ink);
+    transition:background .15s var(--ease), box-shadow .15s var(--ease);
   }
   .searchbar input::placeholder{color:#9A9AA0;}
-  .searchbar input:focus{outline:none;background:#fff;box-shadow:0 0 0 4px rgba(0,113,227,.16), 0 0 0 1.5px var(--accent);}
+  .searchbar input:focus{outline:none;background:#fff;box-shadow:0 0 0 4px rgba(0,113,227,.14), 0 0 0 1.5px var(--accent);}
   .addbtn{
-    background:var(--ink);color:#fff;border:none;border-radius:980px;padding:0 20px;
-    font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:transform .12s var(--ease), background .15s;
+    background:var(--ink);color:#fff;border:none;border-radius:14px;padding:0 18px;
+    font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;
+    transition:transform .15s var(--ease-spring), background .15s, box-shadow .15s;
+    box-shadow:0 2px 8px rgba(0,0,0,.18);
   }
-  .addbtn:hover{background:#000;transform:translateY(-1px);}
-  .addbtn:active{transform:translateY(0);}
+  .addbtn:hover{background:#000;transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.22);}
+  .addbtn:active{transform:translateY(0);box-shadow:0 1px 4px rgba(0,0,0,.14);}
   .addbtn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
-  .catalogbar{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none;align-items:center;}
+  .catalogbar{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none;align-items:center;}
   .catalogbar::-webkit-scrollbar{display:none;}
   .catalog-chip{
-    border:none;background:rgba(0,0,0,0.05);color:var(--ink-soft);border-radius:980px;
-    padding:8px 14px;font:600 13px inherit;white-space:nowrap;cursor:pointer;transition:all .15s var(--ease);
+    border:none;background:rgba(0,0,0,0.055);color:var(--ink-soft);border-radius:980px;
+    padding:7px 14px;font:600 13px inherit;white-space:nowrap;cursor:pointer;
+    transition:all .2s var(--ease);flex-shrink:0;
   }
   .catalog-chip:hover{background:rgba(0,0,0,0.09);}
-  .catalog-chip.active{background:var(--ink);color:#fff;}
+  .catalog-chip.active{background:var(--ink);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.14);}
   .catalog-chip.new{background:transparent;border:1.5px dashed var(--line);color:var(--accent);}
-  .catalog-chip.manage{background:transparent;color:var(--ink-soft);font-size:16px;padding:8px 10px;}
-  .catalog-hint{font-size:12px;color:var(--ink-soft);margin:0 0 10px;display:flex;align-items:center;gap:8px;}
-  .catalog-hint .manage-link{color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;font-size:12px;padding:0;font-family:inherit;}
+  .catalog-hint{font-size:12px;color:var(--ink-soft);margin:12px 0 8px;display:flex;align-items:center;gap:8px;}
+  .manage-link{color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;font-size:12px;padding:0;font-family:inherit;}
   .suggestions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
-  .suggestion{border:none;background:rgba(0,0,0,0.05);border-radius:980px;padding:7px 11px;font:500 12px inherit;color:var(--ink-soft);cursor:pointer;transition:background .15s;}
+  .suggestion{border:none;background:rgba(0,0,0,0.055);border-radius:980px;padding:7px 12px;font:500 12px inherit;color:var(--ink-soft);cursor:pointer;transition:background .15s;}
   .suggestion:hover{background:rgba(0,0,0,0.09);}
 
-  .count{color:var(--ink-soft);font-size:13px;margin:14px 0 14px;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:18px;}
+  .count{color:var(--ink-soft);font-size:12px;margin:14px 0 12px;font-weight:500;}
+
+  /* ── Grid ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;}
+  @media(min-width:480px){.grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:16px;}}
+
   .tag-card{
-    background:var(--card);border-radius:20px;border:none;overflow:hidden;position:relative;
-    display:flex;flex-direction:column;cursor:pointer;box-shadow:var(--shadow-sm);
-    transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+    background:var(--card);border-radius:18px;border:none;overflow:hidden;position:relative;
+    display:flex;flex-direction:column;cursor:pointer;
+    box-shadow:var(--shadow-sm);
+    transition:transform .3s var(--ease), box-shadow .3s var(--ease), opacity .3s;
+    will-change:transform;
   }
-  .tag-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
-  .tag-hole{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:var(--bg);border:1px solid var(--line);z-index:2;}
-  .tag-img-wrap{width:100%;aspect-ratio:1/1;background:#EEEEF0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-  .tag-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
-  .tag-img-wrap .ph{color:#B0B0B5;font-size:11px;}
-  .tag-body{padding:12px 13px 14px;}
-  .tag-name{font-size:14px;font-weight:600;line-height:1.32;margin:0 0 2px;word-break:break-word;letter-spacing:-0.01em;}
-  .tag-note{font-size:12px;color:var(--ink-soft);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .tag-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:var(--shadow-md);}
+  .tag-card:active{transform:translateY(-1px) scale(0.99);}
+  .tag-hole{
+    position:absolute;top:9px;left:50%;transform:translateX(-50%);
+    width:10px;height:10px;border-radius:50%;background:var(--bg);
+    border:1px solid rgba(0,0,0,.08);z-index:2;
+  }
 
-  .empty{text-align:center;padding:70px 20px;color:var(--ink-soft);}
-  .empty .big{font-size:19px;color:var(--ink);font-weight:700;letter-spacing:-0.01em;margin:0 0 6px;}
+  /* Skeleton shimmer */
+  .tag-img-wrap{
+    width:100%;aspect-ratio:1/1;background:#ECEDF0;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    position:relative;
+  }
+  .tag-img-wrap.skeleton::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%);
+    background-size:200% 100%;
+    animation:shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  .tag-img-wrap img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    opacity:0;transition:opacity .35s var(--ease);
+  }
+  .tag-img-wrap img.loaded{opacity:1;}
+  .tag-img-wrap .ph{color:#B0B0B5;font-size:11px;font-weight:500;}
+  .tag-body{padding:10px 12px 13px;}
+  .tag-name{font-size:13px;font-weight:600;line-height:1.35;margin:0 0 2px;word-break:break-word;letter-spacing:-0.01em;}
+  .tag-note{font-size:11px;color:var(--ink-soft);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4;}
+  .tag-cat-badge{
+    position:absolute;bottom:8px;right:8px;
+    background:rgba(0,0,0,.06);border-radius:980px;
+    padding:2px 7px;font-size:10px;font-weight:600;color:var(--ink-soft);
+  }
 
-  .loading{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:14px;padding:40px 0;justify-content:center;}
-  .spinner{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+  .empty{text-align:center;padding:80px 20px;color:var(--ink-soft);}
+  .empty .big{font-size:18px;color:var(--ink);font-weight:700;letter-spacing:-0.01em;margin:0 0 6px;}
+  .empty .icon{font-size:48px;margin-bottom:12px;opacity:.6;}
+
+  .loading{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-size:14px;padding:60px 0;justify-content:center;}
+  .spinner{width:18px;height:18px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
   @keyframes spin{to{transform:rotate(360deg);}}
 
+  /* ── Overlay / Modal ── */
   .overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,0.38);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    position:fixed;inset:0;background:rgba(0,0,0,0.42);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     display:flex;align-items:flex-end;justify-content:center;z-index:50;
     animation:fadeIn .18s var(--ease);
   }
   @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
   @media(min-width:640px){.overlay{align-items:center;}}
   .modal{
-    background:var(--card);width:100%;max-width:440px;border-radius:24px 24px 0 0;
-    padding:26px 24px 30px;max-height:90vh;overflow-y:auto;
-    box-shadow:0 -10px 50px rgba(0,0,0,0.15);
+    background:var(--card);width:100%;max-width:460px;
+    border-radius:24px 24px 0 0;padding:8px 0 0;
+    max-height:92dvh;overflow-y:auto;
+    box-shadow:0 -8px 40px rgba(0,0,0,.18);
     animation:slideUp .28s var(--ease);
+    overscroll-behavior:contain;
   }
-  @keyframes slideUp{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-  @media(min-width:640px){.modal{border-radius:24px;}}
-  .modal h2{font-size:21px;margin:0 0 16px;font-weight:700;letter-spacing:-0.02em;}
-  .field{margin-bottom:14px;}
-  .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:0.01em;}
-  .field input[type=text], .field textarea, .field select{
-    width:100%;padding:11px 13px;border-radius:12px;border:none;background:rgba(0,0,0,0.045);
-    font-size:15px;font-family:inherit;color:var(--ink);resize:vertical;transition:box-shadow .15s var(--ease), background .15s;
+  .modal-handle{width:36px;height:4px;border-radius:2px;background:rgba(0,0,0,.12);margin:0 auto 16px;}
+  .modal-inner{padding:0 22px 28px;}
+  @keyframes slideUp{from{transform:translateY(28px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  @media(min-width:640px){.modal{border-radius:24px;padding:0;}.modal-handle{display:none;}.modal-inner{padding:26px 26px 28px;}}
+  .modal h2{font-size:20px;margin:0 0 18px;font-weight:700;letter-spacing:-0.02em;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase;}
+  .field input[type=text],.field textarea,.field select{
+    width:100%;padding:11px 13px;border-radius:12px;border:none;
+    background:rgba(0,0,0,0.05);font-size:15px;font-family:inherit;color:var(--ink);
+    resize:vertical;transition:box-shadow .15s var(--ease), background .15s;
   }
-  .field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236E6E73'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:32px;}
+  .field select{
+    appearance:none;-webkit-appearance:none;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236E6E73'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;padding-right:32px;
+    background-color:rgba(0,0,0,0.05);
+  }
   .field textarea{min-height:60px;}
-  .field input:focus, .field textarea:focus, .field select:focus{outline:none;background:#fff;box-shadow:0 0 0 4px rgba(0,113,227,.16), 0 0 0 1.5px var(--accent);}
+  .field input:focus,.field textarea:focus,.field select:focus{
+    outline:none;background:#fff;
+    box-shadow:0 0 0 4px rgba(0,113,227,.14), 0 0 0 1.5px var(--accent);
+  }
 
-  .drop{border:1.5px dashed var(--line);border-radius:14px;padding:20px;text-align:center;cursor:pointer;color:var(--ink-soft);font-size:13px;background:rgba(0,0,0,0.02);transition:border-color .15s,background .15s;}
+  .drop{
+    border:1.5px dashed var(--line);border-radius:14px;padding:24px;
+    text-align:center;cursor:pointer;color:var(--ink-soft);font-size:13px;
+    background:rgba(0,0,0,0.02);transition:border-color .15s, background .15s;
+    display:block;
+  }
   .drop:hover{border-color:var(--accent);background:rgba(0,113,227,.04);}
   .drop.has-img{padding:0;border-style:solid;border-color:var(--line);overflow:hidden;}
-  .drop img{width:100%;max-height:220px;object-fit:cover;display:block;}
+  .drop img{width:100%;max-height:200px;object-fit:cover;display:block;}
   .drop input{display:none;}
+  .drop-icon{font-size:28px;margin-bottom:6px;opacity:.5;}
 
-  .modal-actions{display:flex;gap:10px;margin-top:18px;}
-  .btn{flex:1;padding:13px;border-radius:980px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:transform .12s var(--ease), background .15s, opacity .15s;font-family:inherit;}
-  .btn.primary{background:var(--ink);color:#fff;}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .btn{
+    flex:1;padding:13px;border-radius:14px;border:none;font-size:14px;
+    font-weight:600;cursor:pointer;font-family:inherit;
+    transition:transform .12s var(--ease), background .15s, opacity .15s;
+  }
+  .btn.primary{background:var(--ink);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.16);}
   .btn.primary:hover{background:#000;transform:translateY(-1px);}
-  .btn.ghost{background:rgba(0,0,0,0.05);color:var(--ink);border:none;}
+  .btn.ghost{background:rgba(0,0,0,0.055);color:var(--ink);}
   .btn.ghost:hover{background:rgba(0,0,0,0.09);}
-  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-  .btn.link{flex:none;background:none;color:var(--accent);padding:6px 0;font-size:13px;}
-  .btn.link:hover{text-decoration:underline;background:none;}
+  .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none !important;}
+  .btn.link{flex:none;background:none;color:var(--accent);padding:6px 0;font-size:13px;border-radius:0;}
+  .btn.link:hover{text-decoration:underline;}
 
-  .err{background:#FFF1F0;color:var(--danger);border-radius:10px;padding:9px 13px;font-size:13px;margin-bottom:12px;}
-  .detail-img{width:100%;border-radius:16px;overflow:hidden;margin-bottom:14px;background:#EEEEF0;min-height:120px;display:flex;align-items:center;justify-content:center;}
+  .err{background:#FFF1F0;color:var(--danger);border-radius:10px;padding:9px 13px;font-size:13px;margin-bottom:12px;font-weight:500;}
+  .info-msg{background:rgba(0,113,227,.07);color:var(--accent);border-radius:10px;padding:9px 13px;font-size:13px;margin-bottom:12px;}
+
+  .detail-img{
+    width:100%;border-radius:14px;overflow:hidden;margin-bottom:14px;
+    background:#ECEDF0;min-height:140px;display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .detail-img.skeleton::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.5) 50%,transparent 100%);
+    background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite;
+  }
   .detail-img img{width:100%;display:block;}
   .detail-note{color:var(--ink-soft);font-size:14px;line-height:1.5;margin:0 0 4px;}
+  .detail-meta{font-size:12px;color:var(--ink-soft);margin-top:8px;opacity:.7;}
 
-  .manage-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  .manage-row input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(0,0,0,0.045);font-size:14px;font-family:inherit;color:var(--ink);}
-  .manage-row input:focus{outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.16);}
-  .icon-btn{background:rgba(0,0,0,0.05);border:none;border-radius:10px;width:38px;height:38px;font-size:15px;cursor:pointer;flex-shrink:0;transition:background .15s;}
+  .manage-row{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+  .manage-row input{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(0,0,0,0.055);font-size:14px;font-family:inherit;color:var(--ink);}
+  .manage-row input:focus{outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.14);}
+  .icon-btn{background:rgba(0,0,0,0.055);border:none;border-radius:10px;width:36px;height:36px;font-size:14px;cursor:pointer;flex-shrink:0;transition:background .15s;}
   .icon-btn:hover{background:rgba(0,0,0,0.09);}
   .icon-btn.danger{color:var(--danger);}
 
-  /* Auth screen */
-  .authwrap{max-width:380px;margin:100px auto;padding:0 20px;text-align:center;}
-  .authcard{background:var(--card);border:none;border-radius:24px;padding:36px 28px;box-shadow:var(--shadow-md);}
-  .authcard h1{font-size:26px;margin:0 0 6px;font-weight:700;letter-spacing:-0.02em;}
-  .authcard p.sub{color:var(--ink-soft);font-size:13px;margin:0 0 26px;line-height:1.5;}
+  /* ── Auth ── */
+  .authwrap{
+    min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:radial-gradient(ellipse at top, #F0F4FF 0%, var(--bg) 60%);
+  }
+  .authcard{
+    background:var(--card);border:none;border-radius:28px;padding:42px 32px;
+    box-shadow:var(--shadow-md);width:100%;max-width:380px;text-align:center;
+  }
+  .auth-logo{font-size:52px;margin-bottom:16px;}
+  .authcard h1{font-size:26px;margin:0 0 8px;font-weight:700;letter-spacing:-0.03em;}
+  .authcard p.sub{color:var(--ink-soft);font-size:14px;margin:0 0 28px;line-height:1.55;}
   .gbtn{
     display:inline-flex;align-items:center;justify-content:center;gap:10px;
     background:var(--ink);color:#fff;border:none;border-radius:980px;
-    padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;width:100%;
-    transition:transform .12s var(--ease), background .15s;
+    padding:15px 24px;font-size:15px;font-weight:600;cursor:pointer;width:100%;
+    transition:transform .15s var(--ease-spring), background .15s, box-shadow .15s;
+    box-shadow:0 4px 16px rgba(0,0,0,.2);
   }
-  .gbtn:hover{background:#000;transform:translateY(-1px);}
+  .gbtn:hover{background:#000;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.24);}
+  .gbtn:active{transform:translateY(0);}
   .gbtn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+  .auth-note{margin-top:18px;font-size:12px;color:var(--ink-soft);line-height:1.5;}
+
+  /* ── Offline banner ── */
+  #offlineBanner{
+    display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    background:#1D1D1F;color:#fff;border-radius:980px;padding:10px 20px;
+    font-size:13px;font-weight:600;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.3);
+    white-space:nowrap;animation:slideUpBanner .3s var(--ease);
+  }
+  #offlineBanner.show{display:block;}
+  @keyframes slideUpBanner{from{opacity:0;transform:translateX(-50%) translateY(8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+  /* ── Toast ── */
+  #toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:#1D1D1F;color:#fff;border-radius:980px;padding:10px 20px;
+    font-size:13px;font-weight:600;z-index:200;
+    opacity:0;pointer-events:none;transition:opacity .25s var(--ease), transform .25s var(--ease);
+    white-space:nowrap;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
 </style>
 </head>
 <body>
 
-<div id="authScreen" class="authwrap">
+<div id="authScreen" class="authwrap" style="display:none;">
   <div class="authcard">
+    <div class="auth-logo">🗂️</div>
     <h1>Stok Kataloğum</h1>
-    <p class="sub">Ürünlerin Google Drive hesabında saklanır. Devam etmek için giriş yap.</p>
+    <p class="sub">Ürünlerin Google Drive'da saklanır ve her cihazdan erişebilirsin.</p>
     <div id="authErr"></div>
-    <button class="gbtn" id="googleLoginBtn">Google ile Giriş Yap</button>
+    <button class="gbtn" id="googleLoginBtn">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#fff" opacity=".9"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#fff" opacity=".9"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#fff" opacity=".9"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#fff" opacity=".9"/></svg>
+      Google ile Giriş Yap
+    </button>
+    <p class="auth-note">Sadece Drive dosyalarına erişim istenir. Verilerine dokunmayız.</p>
   </div>
 </div>
 
@@ -185,15 +322,19 @@
   <div class="toolbar-sticky">
     <header>
       <div class="htext">
-        <h1>Stok Kataloğum</h1>
-        <p class="sub" id="userEmailLine"></p>
+        <h1>Katalog</h1>
       </div>
-      <button class="logout" id="logoutBtn">Çıkış yap</button>
+      <div class="header-right">
+        <span id="cacheBadge">Hızlı mod</span>
+        <button class="logout" id="logoutBtn">Çıkış</button>
+      </div>
     </header>
-
     <div class="searchbar">
-      <input type="text" id="searchInput" placeholder="Ürün ismi yaz... (örn. mavi kot ceket)" autocomplete="off">
-      <button class="addbtn" id="openAddBtn">+ Ürün Ekle</button>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Ürün ara... (örn. mavi kot)" autocomplete="off" autocorrect="off">
+      </div>
+      <button class="addbtn" id="openAddBtn">+ Ekle</button>
     </div>
     <div id="catalogBar" class="catalogbar" aria-label="Kataloglar"></div>
   </div>
@@ -204,30 +345,128 @@
 </div>
 
 <div id="modalRoot"></div>
+<div id="offlineBanner">📡 Çevrimdışısın — önbellek gösteriliyor</div>
+<div id="toast"></div>
 
 <script src="https://accounts.google.com/gsi/client"></script>
 <script>
-/* =======================================================
-   BURAYA KENDİ GOOGLE OAUTH CLIENT ID'Nİ YAPIŞTIR
-   Google Cloud Console > APIs & Services > Credentials
-   ======================================================= */
+/* ═══════════════════════════════════════════════════════════
+   GOOGLE OAUTH CLIENT ID
+   ═══════════════════════════════════════════════════════════ */
 const GOOGLE_CLIENT_ID = "350531155577-vob34k5k256lfb3lukt1hapfbrb27hf9.apps.googleusercontent.com";
-/* ======================================================= */
 
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email";
 const FOLDER_NAME = "Stok Kataloğum";
 const INDEX_FILE_NAME = "katalog-index.json";
+const IDB_NAME = "katalog-img-cache";
+const IDB_VERSION = 1;
+const IDB_STORE = "images"; // key: fileId, value: {thumb: blob, full: blob, ts: number}
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 gün
+
+/* ═══════════════════════════════════════════════
+   SERVICE WORKER KAYDET
+   ═══════════════════════════════════════════════ */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
+
+/* ═══════════════════════════════════════════════
+   ONLINE / OFFLINE BANNER
+   ═══════════════════════════════════════════════ */
+var offlineBanner = document.getElementById('offlineBanner');
+function updateOnlineStatus(){
+  if(!navigator.onLine){ offlineBanner.classList.add('show'); }
+  else { offlineBanner.classList.remove('show'); }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+updateOnlineStatus();
+
+/* ═══════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════ */
+var toastEl = document.getElementById('toast');
+var _toastTimer = null;
+function showToast(msg, duration){
+  clearTimeout(_toastTimer);
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  _toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, duration || 2200);
+}
+
+/* ═══════════════════════════════════════════════
+   IndexedDB — Kalıcı resim önbelleği
+   ═══════════════════════════════════════════════ */
+var _idb = null;
+function openIDB(){
+  if(_idb) return Promise.resolve(_idb);
+  return new Promise(function(resolve, reject){
+    var req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = function(e){
+      e.target.result.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = function(e){ _idb = e.target.result; resolve(_idb); };
+    req.onerror = function(){ reject(req.error); };
+  });
+}
+async function idbGet(key){
+  var db = await openIDB();
+  return new Promise(function(resolve){
+    var tx = db.transaction(IDB_STORE,'readonly');
+    var req = tx.objectStore(IDB_STORE).get(key);
+    req.onsuccess = function(){ resolve(req.result); };
+    req.onerror = function(){ resolve(null); };
+  });
+}
+async function idbSet(key, value){
+  var db = await openIDB();
+  return new Promise(function(resolve){
+    var tx = db.transaction(IDB_STORE,'readwrite');
+    tx.objectStore(IDB_STORE).put(value, key);
+    tx.oncomplete = resolve;
+    tx.onerror = resolve;
+  });
+}
+async function idbDelete(key){
+  try{
+    var db = await openIDB();
+    var tx = db.transaction(IDB_STORE,'readwrite');
+    tx.objectStore(IDB_STORE).delete(key);
+  }catch(e){}
+}
+async function idbClearExpired(){
+  try{
+    var db = await openIDB();
+    var tx = db.transaction(IDB_STORE,'readwrite');
+    var store = tx.objectStore(IDB_STORE);
+    var req = store.openCursor();
+    req.onsuccess = function(e){
+      var cursor = e.target.result;
+      if(!cursor) return;
+      if(cursor.value && cursor.value.ts && Date.now() - cursor.value.ts > CACHE_TTL){
+        cursor.delete();
+      }
+      cursor.continue();
+    };
+  }catch(e){}
+}
 
 (function(){
+  /* ═══════════════════════════════════════════════
+     STATE
+     ═══════════════════════════════════════════════ */
   var accessToken = null;
   var tokenClient = null;
   var isSilentAuthAttempt = false;
   var folderId = null;
   var indexFileId = null;
-  var products = []; // {id, name, note, imageFileId, createdAt}
-  var catalogs = []; // {id, name, icon, createdAt}
+  var products = [];
+  var catalogs = [];
   var activeCatalogId = 'all';
-  var imgUrlCache = {}; // fileId -> objectURL
+
+  // In-memory URL cache (bu sekme için hızlı erişim)
+  var urlCache = {};  // fileId -> {thumb: objectURL, full: objectURL}
+  var idbCacheCount = 0;
 
   var authScreen = document.getElementById('authScreen');
   var authErr = document.getElementById('authErr');
@@ -240,14 +479,27 @@ const INDEX_FILE_NAME = "katalog-index.json";
   var addBtn = document.getElementById('openAddBtn');
   var catalogBar = document.getElementById('catalogBar');
   var catalogHint = document.getElementById('catalogHint');
+  var cacheBadge = document.getElementById('cacheBadge');
 
   function escapeHtml(s){
-    return (s||'').replace(/[&<>"']/g, function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    return (s||'').replace(/[&<>"']/g,function(c){
+      return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
 
-  // ---------- GOOGLE SIGN-IN ----------
+  /* ── Update cache badge ── */
+  function updateCacheBadge(){
+    if(idbCacheCount > 0){
+      cacheBadge.textContent = idbCacheCount + ' resim önbellekte';
+      cacheBadge.classList.add('show');
+    } else {
+      cacheBadge.classList.remove('show');
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     GOOGLE SIGN-IN
+     ═══════════════════════════════════════════════ */
   function initTokenClient(){
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
@@ -258,8 +510,9 @@ const INDEX_FILE_NAME = "katalog-index.json";
             authErr.innerHTML = '<div class="err">Giriş başarısız: ' + escapeHtml(resp.error) + '</div>';
           }
           isSilentAuthAttempt = false;
+          authScreen.style.display = '';
           googleLoginBtn.disabled = false;
-          googleLoginBtn.textContent = 'Google ile Giriş Yap';
+          googleLoginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#fff" opacity=".9"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#fff" opacity=".9"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#fff" opacity=".9"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#fff" opacity=".9"/></svg> Google ile Giriş Yap';
           return;
         }
         isSilentAuthAttempt = false;
@@ -267,9 +520,6 @@ const INDEX_FILE_NAME = "katalog-index.json";
         await onSignedIn();
       }
     });
-
-    // Google oturumu ve daha önce verilmiş izin varsa, sayfa yenilendiğinde
-    // kullanıcıyı tekrar düğmeye basmaya zorlamadan yeniden bağlan.
     isSilentAuthAttempt = true;
     tokenClient.requestAccessToken({ prompt: '' });
   }
@@ -282,96 +532,95 @@ const INDEX_FILE_NAME = "katalog-index.json";
   });
 
   document.getElementById('logoutBtn').addEventListener('click', function(){
-    if(accessToken){
-      google.accounts.oauth2.revoke(accessToken, function(){});
-    }
-    accessToken = null;
-    folderId = null;
-    indexFileId = null;
-    products = [];
+    if(accessToken) google.accounts.oauth2.revoke(accessToken,function(){});
+    accessToken = null; folderId = null; indexFileId = null; products = []; catalogs = [];
+    // objectURL'leri serbest bırak
+    Object.values(urlCache).forEach(function(c){
+      try{ if(c.thumb) URL.revokeObjectURL(c.thumb); if(c.full) URL.revokeObjectURL(c.full); }catch(e){}
+    });
+    urlCache = {};
     app.style.display = 'none';
-    authScreen.style.display = 'block';
+    authScreen.style.display = '';
     googleLoginBtn.disabled = false;
-    googleLoginBtn.textContent = 'Google ile Giriş Yap';
+    googleLoginBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#fff" opacity=".9"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#fff" opacity=".9"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#fff" opacity=".9"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#fff" opacity=".9"/></svg> Google ile Giriş Yap';
   });
 
   async function onSignedIn(){
     authScreen.style.display = 'none';
     app.style.display = 'block';
     renderLoading('Drive hazırlanıyor...');
+    // Süresi dolan önbellek girdilerini temizle (arka planda)
+    idbClearExpired();
     try{
       var userInfo = await driveFetch('https://www.googleapis.com/oauth2/v3/userinfo');
       var userJson = await userInfo.json();
-      document.getElementById('userEmailLine').textContent = userJson.email || '';
-    }catch(e){ /* not critical */ }
-
+      // email'i başlıkta gösterme, sadece konsola yaz
+      console.log('Signed in:', userJson.email);
+    }catch(e){}
     try{
       await ensureFolderAndIndex();
       await loadIndex();
+      // Önbellekte kaç resim var say
+      countCachedImages();
       refresh();
     }catch(e){
-      content.innerHTML = '<div class="err">Drive hazırlanırken sorun oldu: ' + escapeHtml(e.message || 'bilinmeyen hata') + '</div>';
+      content.innerHTML = '<div class="err">Drive hazırlanırken sorun oldu: ' + escapeHtml(e.message||'bilinmeyen hata') + '</div>';
     }
   }
 
-  // ---------- DRIVE HELPERS ----------
+  async function countCachedImages(){
+    try{
+      var db = await openIDB();
+      var tx = db.transaction(IDB_STORE,'readonly');
+      var req = tx.objectStore(IDB_STORE).count();
+      req.onsuccess = function(){ idbCacheCount = req.result; updateCacheBadge(); };
+    }catch(e){}
+  }
+
+  /* ═══════════════════════════════════════════════
+     DRIVE HELPERS
+     ═══════════════════════════════════════════════ */
   async function driveFetch(url, options){
+    if(!accessToken) throw new Error('Oturum yok');
     options = options || {};
-    options.headers = Object.assign({}, options.headers, { 'Authorization': 'Bearer ' + accessToken });
+    options.headers = Object.assign({}, options.headers, {'Authorization':'Bearer ' + accessToken});
     var res = await fetch(url, options);
-    if(res.status === 401){
-      // token expired - ask user to sign in again
-      throw new Error('Oturum süresi doldu, lütfen tekrar giriş yap.');
-    }
+    if(res.status === 401) throw new Error('Oturum süresi doldu, lütfen tekrar giriş yap.');
     return res;
   }
 
   async function ensureFolderAndIndex(){
-    // find folder
     var q = encodeURIComponent("mimeType='application/vnd.google-apps.folder' and name='" + FOLDER_NAME + "' and trashed=false");
     var r = await driveFetch('https://www.googleapis.com/drive/v3/files?q=' + q + '&fields=files(id,name)');
     var data = await r.json();
-    if(data.files && data.files.length > 0){
+    if(data.files && data.files.length){
       folderId = data.files[0].id;
     } else {
-      var createRes = await driveFetch('https://www.googleapis.com/drive/v3/files', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' })
+      var cr = await driveFetch('https://www.googleapis.com/drive/v3/files',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name:FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'})
       });
-      var created = await createRes.json();
-      folderId = created.id;
+      folderId = (await cr.json()).id;
     }
-
-    // find index file
     var q2 = encodeURIComponent("name='" + INDEX_FILE_NAME + "' and '" + folderId + "' in parents and trashed=false");
     var r2 = await driveFetch('https://www.googleapis.com/drive/v3/files?q=' + q2 + '&fields=files(id,name)');
     var data2 = await r2.json();
-    if(data2.files && data2.files.length > 0){
-      indexFileId = data2.files[0].id;
-    } else {
-      indexFileId = await createIndexFile();
-    }
+    if(data2.files && data2.files.length){ indexFileId = data2.files[0].id; }
+    else { indexFileId = await createIndexFile(); }
   }
 
   async function createIndexFile(){
     var boundary = '-------idx' + Date.now();
-    var metadata = { name: INDEX_FILE_NAME, mimeType: 'application/json', parents: [folderId] };
+    var metadata = {name:INDEX_FILE_NAME,mimeType:'application/json',parents:[folderId]};
+    var initial = {catalogs:[{id:'general',name:'Genel',icon:'✦',createdAt:Date.now()}],products:[]};
     var body =
-      '--' + boundary + '\r\n' +
-      'Content-Type: application/json\r\n\r\n' +
-      JSON.stringify(metadata) + '\r\n' +
-      '--' + boundary + '\r\n' +
-      'Content-Type: application/json\r\n\r\n' +
-      JSON.stringify({ catalogs: [{id:'general',name:'Genel',icon:'✦',createdAt:Date.now()}], products: [] }) + '\r\n' +
+      '--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + '\r\n' +
+      '--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + JSON.stringify(initial) + '\r\n' +
       '--' + boundary + '--';
-    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'multipart/related; boundary="' + boundary + '"' },
-      body: body
+    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+      method:'POST',headers:{'Content-Type':'multipart/related; boundary="'+boundary+'"'},body:body
     });
-    var created = await res.json();
-    return created.id;
+    return (await res.json()).id;
   }
 
   async function loadIndex(){
@@ -380,137 +629,232 @@ const INDEX_FILE_NAME = "katalog-index.json";
     products = (json && json.products) ? json.products : [];
     catalogs = (json && json.catalogs && json.catalogs.length) ? json.catalogs : [{id:'general',name:'Genel',icon:'✦',createdAt:Date.now()}];
     products.forEach(function(p){ if(!p.catalogId) p.catalogId = 'general'; });
-    products.sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+    products.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
   }
 
   async function saveIndex(){
-    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files/' + indexFileId + '?uploadType=media', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ catalogs: catalogs, products: products })
+    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files/' + indexFileId + '?uploadType=media',{
+      method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({catalogs:catalogs,products:products})
     });
     if(!res.ok) throw new Error('index kaydedilemedi');
   }
 
-  async function uploadImage(dataUrl, name){
-    var base64 = dataUrl.split(',')[1];
+  async function uploadImage(thumbDataUrl, fullDataUrl, name){
+    // Full boyutu yükle (Drive'a)
+    var base64 = fullDataUrl.split(',')[1];
     var boundary = '-------img' + Date.now();
-    var metadata = { name: name + '.jpg', mimeType: 'image/jpeg', parents: [folderId] };
+    var metadata = {name:name+'.jpg',mimeType:'image/jpeg',parents:[folderId]};
     var body =
-      '--' + boundary + '\r\n' +
-      'Content-Type: application/json\r\n\r\n' +
-      JSON.stringify(metadata) + '\r\n' +
-      '--' + boundary + '\r\n' +
-      'Content-Type: image/jpeg\r\n' +
-      'Content-Transfer-Encoding: base64\r\n\r\n' +
-      base64 + '\r\n' +
+      '--' + boundary + '\r\nContent-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + '\r\n' +
+      '--' + boundary + '\r\nContent-Type: image/jpeg\r\nContent-Transfer-Encoding: base64\r\n\r\n' + base64 + '\r\n' +
       '--' + boundary + '--';
-    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'multipart/related; boundary="' + boundary + '"' },
-      body: body
+    var res = await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+      method:'POST',headers:{'Content-Type':'multipart/related; boundary="'+boundary+'"'},body:body
     });
     var created = await res.json();
     if(!created.id) throw new Error('fotoğraf yüklenemedi');
+    // IndexedDB'ye hem thumb hem full olarak kaydet (upload anında önbelleğe al)
+    var thumbBlob = await (await fetch(thumbDataUrl)).blob();
+    var fullBlob = await (await fetch(fullDataUrl)).blob();
+    await idbSet(created.id, {thumb:thumbBlob, full:fullBlob, ts:Date.now()});
+    idbCacheCount++;
+    updateCacheBadge();
     return created.id;
   }
 
-  async function fetchImageUrl(fileId){
-    if(imgUrlCache[fileId]) return imgUrlCache[fileId];
+  /* ═══════════════════════════════════════════════
+     RESİM ÖNBELLEKLE
+     Önce IndexedDB'ye bak, yoksa Drive'dan çek ve kaydet
+     ═══════════════════════════════════════════════ */
+  async function getImageUrl(fileId, type){
+    // type: 'thumb' | 'full'
+    if(!fileId) return null;
+    // 1. In-memory cache (bu sekme)
+    if(urlCache[fileId] && urlCache[fileId][type]){
+      return urlCache[fileId][type];
+    }
+    // 2. IndexedDB (kalıcı)
+    var cached = await idbGet(fileId);
+    if(cached && cached[type]){
+      var url = URL.createObjectURL(cached[type]);
+      if(!urlCache[fileId]) urlCache[fileId] = {};
+      urlCache[fileId][type] = url;
+      return url;
+    }
+    // 3. Drive'dan indir
     var res = await driveFetch('https://www.googleapis.com/drive/v3/files/' + fileId + '?alt=media');
     var blob = await res.blob();
-    var url = URL.createObjectURL(blob);
-    imgUrlCache[fileId] = url;
-    return url;
+    // Thumb için ölçekle
+    var thumbBlob = await resizeBlob(blob, 400, 0.65);
+    var fullBlob = blob;
+    var entry = cached ? Object.assign({}, cached) : {ts:Date.now()};
+    entry.thumb = thumbBlob;
+    entry.full = fullBlob;
+    entry.ts = Date.now();
+    await idbSet(fileId, entry);
+    idbCacheCount++;
+    updateCacheBadge();
+    var thumbUrl = URL.createObjectURL(thumbBlob);
+    var fullUrl = URL.createObjectURL(fullBlob);
+    if(!urlCache[fileId]) urlCache[fileId] = {};
+    urlCache[fileId].thumb = thumbUrl;
+    urlCache[fileId].full = fullUrl;
+    return urlCache[fileId][type];
   }
 
-  // ---------- RENDER ----------
+  /* Blob'u canvas ile yeniden boyutlandır */
+  function resizeBlob(blob, maxW, quality){
+    return new Promise(function(resolve){
+      var url = URL.createObjectURL(blob);
+      var img = new Image();
+      img.onload = function(){
+        URL.revokeObjectURL(url);
+        var scale = Math.min(1, maxW / img.width);
+        var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(function(b){ resolve(b); }, 'image/jpeg', quality || 0.75);
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); resolve(blob); };
+      img.src = url;
+    });
+  }
+
+  /* ═══════════════════════════════════════════════
+     RENDER
+     ═══════════════════════════════════════════════ */
   function renderLoading(msg){
-    content.innerHTML = '<div class="loading"><div class="spinner"></div>' + escapeHtml(msg || 'Yükleniyor...') + '</div>';
+    content.innerHTML = '<div class="loading"><div class="spinner"></div>' + escapeHtml(msg||'Yükleniyor...') + '</div>';
   }
   function renderEmpty(isSearch){
     content.innerHTML =
       '<div class="empty">' +
+        '<div class="icon">' + (isSearch ? '🔍' : '📦') + '</div>' +
         '<p class="big">' + (isSearch ? 'Eşleşen ürün yok' : 'Henüz ürün eklenmedi') + '</p>' +
-        '<p>' + (isSearch ? 'Farklı bir isimle aramayı dene.' : '"+ Ürün Ekle" ile ilk fotoğrafını yükle.') + '</p>' +
+        '<p>' + (isSearch ? 'Farklı bir kelimeyle aramayı dene.' : '"+ Ekle" ile ilk ürününü ekle.') + '</p>' +
       '</div>';
   }
+
+  /* IntersectionObserver — sadece görünür kartlar yüklenir */
+  var _observer = null;
+  function getObserver(){
+    if(!_observer){
+      _observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            _observer.unobserve(entry.target);
+            loadCardImage(entry.target);
+          }
+        });
+      }, { rootMargin:'120px' }); // 120px önceden başlat
+    }
+    return _observer;
+  }
+
+  function loadCardImage(el){
+    var fileId = el.getAttribute('data-img');
+    var pid = el.getAttribute('data-pid');
+    if(!fileId) return;
+    var wrap = document.getElementById('img-' + pid);
+    if(!wrap) return;
+    getImageUrl(fileId, 'thumb').then(function(url){
+      if(!url){ wrap.classList.remove('skeleton'); wrap.innerHTML = '<span class="ph">📷</span>'; return; }
+      var img = new Image();
+      img.onload = function(){
+        if(!document.getElementById('img-' + pid)) return;
+        wrap.classList.remove('skeleton');
+        wrap.innerHTML = '';
+        img.className = 'loaded';
+        wrap.appendChild(img);
+      };
+      img.src = url;
+      img.alt = el.getAttribute('data-name') || '';
+    }).catch(function(){
+      if(wrap){ wrap.classList.remove('skeleton'); wrap.innerHTML = '<span class="ph">⚠️</span>'; }
+    });
+  }
+
   function renderGrid(list){
     var html = '<div class="grid">';
     list.forEach(function(p){
+      var cat = catalogs.find(function(c){ return c.id === p.catalogId; });
       html +=
-        '<div class="tag-card" data-id="' + p.id + '">' +
+        '<div class="tag-card" data-id="' + p.id + '"' +
+          (p.imageFileId ? ' data-img="' + p.imageFileId + '" data-pid="' + p.id + '" data-name="' + escapeHtml(p.name) + '"' : '') + '>' +
           '<div class="tag-hole"></div>' +
-          '<div class="tag-img-wrap" id="img-' + p.id + '"><span class="ph">yükleniyor</span></div>' +
+          '<div class="tag-img-wrap' + (p.imageFileId ? ' skeleton' : '') + '" id="img-' + p.id + '">' +
+            (!p.imageFileId ? '<span class="ph">📷</span>' : '') +
+          '</div>' +
           '<div class="tag-body">' +
             '<p class="tag-name">' + escapeHtml(p.name) + '</p>' +
             (p.note ? '<p class="tag-note">' + escapeHtml(p.note) + '</p>' : '') +
           '</div>' +
+          (cat && activeCatalogId === 'all' ? '<span class="tag-cat-badge">' + escapeHtml(cat.icon||'✦') + '</span>' : '') +
         '</div>';
     });
     html += '</div>';
     content.innerHTML = html;
+
+    var obs = getObserver();
     Array.prototype.forEach.call(content.querySelectorAll('.tag-card'), function(el){
       el.addEventListener('click', function(){
         var p = products.find(function(x){ return x.id === el.getAttribute('data-id'); });
         if(p) openDetail(p);
       });
-    });
-    // lazy-load thumbnails
-    list.forEach(function(p){
-      if(!p.imageFileId) return;
-      fetchImageUrl(p.imageFileId).then(function(url){
-        var wrap = document.getElementById('img-' + p.id);
-        if(wrap) wrap.innerHTML = '<img src="' + url + '" alt="' + escapeHtml(p.name) + '">';
-      }).catch(function(){
-        var wrap = document.getElementById('img-' + p.id);
-        if(wrap) wrap.innerHTML = '<span class="ph">yüklenemedi</span>';
-      });
+      if(el.getAttribute('data-img')) obs.observe(el);
     });
   }
+
   function currentFiltered(){
     var q = searchInput.value.trim().toLocaleLowerCase('tr');
     return products.filter(function(p){
       if(activeCatalogId !== 'all' && p.catalogId !== activeCatalogId) return false;
       if(!q) return true;
-      var hay = ((p.name||'') + ' ' + (p.note||'')).toLocaleLowerCase('tr');
-      return hay.indexOf(q) !== -1;
+      return ((p.name||'') + ' ' + (p.note||'')).toLocaleLowerCase('tr').indexOf(q) !== -1;
     });
   }
   function activeCatalog(){ return catalogs.find(function(c){ return c.id === activeCatalogId; }); }
+
   function renderCatalogs(){
-    var html = '<button class="catalog-chip ' + (activeCatalogId === 'all' ? 'active' : '') + '" data-catalog="all">Tümü</button>';
+    var html = '<button class="catalog-chip' + (activeCatalogId==='all'?' active':'') + '" data-catalog="all">Tümü</button>';
     catalogs.forEach(function(c){
-      html += '<button class="catalog-chip ' + (activeCatalogId === c.id ? 'active' : '') + '" data-catalog="' + c.id + '">' + escapeHtml(c.icon || '✦') + ' ' + escapeHtml(c.name) + '</button>';
+      html += '<button class="catalog-chip' + (activeCatalogId===c.id?' active':'') + '" data-catalog="' + c.id + '">' + escapeHtml(c.icon||'✦') + ' ' + escapeHtml(c.name) + '</button>';
     });
     html += '<button class="catalog-chip new" id="newCatalogBtn">+ Katalog</button>';
     catalogBar.innerHTML = html;
-    Array.prototype.forEach.call(catalogBar.querySelectorAll('[data-catalog]'), function(btn){
-      btn.addEventListener('click', function(){ activeCatalogId = btn.getAttribute('data-catalog'); refresh(); });
+    Array.prototype.forEach.call(catalogBar.querySelectorAll('[data-catalog]'),function(btn){
+      btn.addEventListener('click',function(){ activeCatalogId = btn.getAttribute('data-catalog'); refresh(); });
     });
     document.getElementById('newCatalogBtn').addEventListener('click', openCatalogModal);
   }
+
   function refresh(){
     var filtered = currentFiltered();
     var catalog = activeCatalog();
-    var label = catalog ? (catalog.icon || '✦') + ' ' + escapeHtml(catalog.name) + ' kataloğu' : 'Tüm kataloglar';
-    catalogHint.innerHTML = '<span>' + label + '</span><button class="manage-link" id="manageCatalogsBtn">Kataloğları yönet</button>';
+    var label = catalog ? escapeHtml(catalog.icon||'✦') + ' ' + escapeHtml(catalog.name) : 'Tüm kataloglar';
+    catalogHint.innerHTML = '<span>' + label + '</span><button class="manage-link" id="manageCatalogsBtn">Yönet</button>';
     document.getElementById('manageCatalogsBtn').addEventListener('click', openManageCatalogsModal);
     renderCatalogs();
-    countLine.textContent = filtered.length + ' ürün gösteriliyor' + (searchInput.value.trim() ? ' · arama sonucu' : '');
+    countLine.textContent = filtered.length + ' ürün' + (searchInput.value.trim() ? ' bulundu' : '');
     if(filtered.length === 0) renderEmpty(!!searchInput.value.trim());
     else renderGrid(filtered);
   }
   searchInput.addEventListener('input', refresh);
 
-  // ---------- CATALOGS ----------
+  /* ═══════════════════════════════════════════════
+     KATALOG MODALLARI
+     ═══════════════════════════════════════════════ */
   function openCatalogModal(){
     modalRoot.innerHTML =
       '<div class="overlay" id="catalogOv"><div class="modal">' +
+        '<div class="modal-handle"></div><div class="modal-inner">' +
         '<h2>Yeni Katalog</h2><div id="catalogErr"></div>' +
         '<div class="field"><label>Katalog adı</label><input type="text" id="catalogName" placeholder="örn. Marvel koleksiyonu"></div>' +
-        '<div class="field"><label>Simge (opsiyonel)</label><input type="text" id="catalogIcon" maxlength="4" value="✦" placeholder="örn. ⚡"></div>' +
-        '<p class="catalog-hint">Fikirler</p><div class="suggestions">' +
+        '<div class="field"><label>Simge</label><input type="text" id="catalogIcon" maxlength="4" value="✦"></div>' +
+        '<p style="font-size:12px;color:var(--ink-soft);margin:8px 0 6px;">Hızlı seç</p>' +
+        '<div class="suggestions">' +
           '<button class="suggestion" data-name="Marvel" data-icon="🦸">🦸 Marvel</button>' +
           '<button class="suggestion" data-name="The Boys" data-icon="⚡">⚡ The Boys</button>' +
           '<button class="suggestion" data-name="Anime" data-icon="🌸">🌸 Anime</button>' +
@@ -518,77 +862,77 @@ const INDEX_FILE_NAME = "katalog-index.json";
           '<button class="suggestion" data-name="Vintage" data-icon="🪩">🪩 Vintage</button>' +
         '</div>' +
         '<div class="modal-actions"><button class="btn ghost" id="cancelCatalog">Vazgeç</button><button class="btn primary" id="saveCatalog">Oluştur</button></div>' +
-      '</div></div>';
+        '</div></div></div>';
     var ov = document.getElementById('catalogOv');
     var nameInput = document.getElementById('catalogName');
     var iconInput = document.getElementById('catalogIcon');
-    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
-    document.getElementById('cancelCatalog').addEventListener('click', closeModal);
-    Array.prototype.forEach.call(document.querySelectorAll('.suggestion'), function(btn){
-      btn.addEventListener('click', function(){ nameInput.value = btn.dataset.name; iconInput.value = btn.dataset.icon; nameInput.focus(); });
+    ov.addEventListener('click',function(e){ if(e.target===ov) closeModal(); });
+    document.getElementById('cancelCatalog').addEventListener('click',closeModal);
+    Array.prototype.forEach.call(document.querySelectorAll('.suggestion'),function(btn){
+      btn.addEventListener('click',function(){ nameInput.value=btn.dataset.name; iconInput.value=btn.dataset.icon; nameInput.focus(); });
     });
     document.getElementById('saveCatalog').addEventListener('click', async function(){
       var name = nameInput.value.trim();
-      if(!name){ document.getElementById('catalogErr').innerHTML = '<div class="err">Katalog adı yaz.</div>'; return; }
-      var duplicate = catalogs.some(function(c){ return c.name.toLocaleLowerCase('tr') === name.toLocaleLowerCase('tr'); });
-      if(duplicate){ document.getElementById('catalogErr').innerHTML = '<div class="err">Bu isimde bir katalog zaten var.</div>'; return; }
-      var btn = document.getElementById('saveCatalog'); btn.disabled = true; btn.textContent = 'Oluşturuluyor...';
+      if(!name){ document.getElementById('catalogErr').innerHTML='<div class="err">Katalog adı yaz.</div>'; return; }
+      if(catalogs.some(function(c){ return c.name.toLocaleLowerCase('tr')===name.toLocaleLowerCase('tr'); })){
+        document.getElementById('catalogErr').innerHTML='<div class="err">Bu isimde katalog var.</div>'; return;
+      }
+      var btn = document.getElementById('saveCatalog'); btn.disabled=true; btn.textContent='Oluşturuluyor...';
       try{
-        var catalog = {id:'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7), name:name, icon:iconInput.value.trim() || '✦', createdAt:Date.now()};
-        catalogs.push(catalog); activeCatalogId = catalog.id; await saveIndex(); closeModal(); refresh();
-      }catch(e){ document.getElementById('catalogErr').innerHTML = '<div class="err">Katalog kaydedilemedi.</div>'; btn.disabled = false; btn.textContent = 'Oluştur'; }
+        var cat = {id:'c_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name:name,icon:iconInput.value.trim()||'✦',createdAt:Date.now()};
+        catalogs.push(cat); activeCatalogId=cat.id; await saveIndex(); closeModal(); refresh();
+        showToast('✓ "' + name + '" kataloğu oluşturuldu');
+      }catch(e){ document.getElementById('catalogErr').innerHTML='<div class="err">Kaydedilemedi.</div>'; btn.disabled=false; btn.textContent='Oluştur'; }
     });
   }
 
   function openManageCatalogsModal(){
     function rowsHtml(){
       return catalogs.map(function(c){
-        var count = products.filter(function(p){ return p.catalogId === c.id; }).length;
         return '<div class="manage-row" data-id="' + c.id + '">' +
-          '<input type="text" value="' + escapeHtml(c.name) + '" data-field="name" style="max-width:120px;">' +
-          '<input type="text" value="' + escapeHtml(c.icon || '✦') + '" maxlength="4" data-field="icon" style="max-width:48px;text-align:center;">' +
+          '<input type="text" value="' + escapeHtml(c.name) + '" data-field="name" style="max-width:110px;">' +
+          '<input type="text" value="' + escapeHtml(c.icon||'✦') + '" maxlength="4" data-field="icon" style="max-width:44px;text-align:center;">' +
           '<button class="icon-btn" data-action="save" title="Kaydet">✓</button>' +
-          (c.id !== 'general' ? '<button class="icon-btn danger" data-action="delete" title="Sil">🗑</button>' : '<span style="width:38px;flex-shrink:0;"></span>') +
+          (c.id!=='general'?'<button class="icon-btn danger" data-action="delete" title="Sil">🗑</button>':'<span style="width:36px;flex-shrink:0;"></span>') +
         '</div>';
       }).join('');
     }
     modalRoot.innerHTML =
       '<div class="overlay" id="mgOv"><div class="modal">' +
+        '<div class="modal-handle"></div><div class="modal-inner">' +
         '<h2>Katalogları Yönet</h2>' +
         '<div id="mgErr"></div>' +
         '<div id="mgRows">' + rowsHtml() + '</div>' +
-        '<p class="catalog-hint" style="margin-top:12px;">"Genel" katalog silinemez; sildiğin kataloglardaki ürünler otomatik olarak Genel\'e taşınır.</p>' +
-        '<div class="modal-actions"><button class="btn ghost" id="mgClose" style="flex:1;">Kapat</button></div>' +
-      '</div></div>';
+        '<p class="catalog-hint" style="margin-top:12px;">"Genel" silinemez; silinen kataloglardaki ürünler Genel\'e taşınır.</p>' +
+        '<div class="modal-actions"><button class="btn ghost" id="mgClose">Kapat</button></div>' +
+        '</div></div></div>';
     var ov = document.getElementById('mgOv');
-    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
-    document.getElementById('mgClose').addEventListener('click', closeModal);
-
+    ov.addEventListener('click',function(e){ if(e.target===ov) closeModal(); });
+    document.getElementById('mgClose').addEventListener('click',closeModal);
     function bindRows(){
-      Array.prototype.forEach.call(document.querySelectorAll('#mgRows [data-action]'), function(btn){
+      Array.prototype.forEach.call(document.querySelectorAll('#mgRows [data-action]'),function(btn){
         btn.addEventListener('click', async function(){
           var row = btn.closest('.manage-row');
           var id = row.getAttribute('data-id');
-          var cat = catalogs.find(function(c){ return c.id === id; });
+          var cat = catalogs.find(function(c){ return c.id===id; });
           document.getElementById('mgErr').innerHTML = '';
-          if(btn.dataset.action === 'save'){
+          if(btn.dataset.action==='save'){
             var newName = row.querySelector('[data-field="name"]').value.trim();
-            var newIcon = row.querySelector('[data-field="icon"]').value.trim() || '✦';
-            if(!newName){ document.getElementById('mgErr').innerHTML = '<div class="err">Katalog adı boş olamaz.</div>'; return; }
-            cat.name = newName; cat.icon = newIcon;
-            try{ await saveIndex(); refresh(); }
-            catch(e){ document.getElementById('mgErr').innerHTML = '<div class="err">Kaydedilemedi, tekrar dene.</div>'; }
-          } else if(btn.dataset.action === 'delete'){
-            if(!confirm('"' + cat.name + '" kataloğunu silmek istediğine emin misin? İçindeki ürünler Genel\'e taşınacak.')) return;
-            catalogs = catalogs.filter(function(c){ return c.id !== id; });
-            products.forEach(function(p){ if(p.catalogId === id) p.catalogId = 'general'; });
-            if(activeCatalogId === id) activeCatalogId = 'all';
+            var newIcon = row.querySelector('[data-field="icon"]').value.trim()||'✦';
+            if(!newName){ document.getElementById('mgErr').innerHTML='<div class="err">Ad boş olamaz.</div>'; return; }
+            cat.name=newName; cat.icon=newIcon;
+            try{ await saveIndex(); refresh(); showToast('✓ Kaydedildi'); }
+            catch(e){ document.getElementById('mgErr').innerHTML='<div class="err">Kaydedilemedi.</div>'; }
+          } else if(btn.dataset.action==='delete'){
+            if(!confirm('"' + cat.name + '" silinsin mi? Ürünler Genel\'e taşınacak.')) return;
+            catalogs = catalogs.filter(function(c){ return c.id!==id; });
+            products.forEach(function(p){ if(p.catalogId===id) p.catalogId='general'; });
+            if(activeCatalogId===id) activeCatalogId='all';
             try{
               await saveIndex();
               document.getElementById('mgRows').innerHTML = rowsHtml();
-              bindRows();
-              refresh();
-            }catch(e){ document.getElementById('mgErr').innerHTML = '<div class="err">Silinemedi, tekrar dene.</div>'; }
+              bindRows(); refresh();
+            }catch(e){ document.getElementById('mgErr').innerHTML='<div class="err">Silinemedi.</div>'; }
           }
         });
       });
@@ -596,52 +940,51 @@ const INDEX_FILE_NAME = "katalog-index.json";
     bindRows();
   }
 
-  // ---------- ADD MODAL ----------
+  /* ═══════════════════════════════════════════════
+     ÜRÜN EKLE / DÜZENLE
+     ═══════════════════════════════════════════════ */
   function catalogOptionsHtml(selectedId){
     return catalogs.map(function(c){
-      return '<option value="' + c.id + '"' + (c.id === selectedId ? ' selected' : '') + '>' + escapeHtml(c.icon || '✦') + ' ' + escapeHtml(c.name) + '</option>';
+      return '<option value="' + c.id + '"' + (c.id===selectedId?' selected':'') + '>' + escapeHtml(c.icon||'✦') + ' ' + escapeHtml(c.name) + '</option>';
     }).join('');
   }
 
   function openAddModal(){
-    var imgDataUrl = null;
-    var defaultCatalogId = activeCatalogId === 'all' ? 'general' : activeCatalogId;
+    var thumbDataUrl = null, fullDataUrl = null;
+    var defaultCatalogId = activeCatalogId==='all' ? 'general' : activeCatalogId;
     modalRoot.innerHTML =
       '<div class="overlay" id="ov"><div class="modal">' +
+        '<div class="modal-handle"></div><div class="modal-inner">' +
         '<h2>Yeni Ürün Ekle</h2>' +
         '<div id="addErr"></div>' +
         '<div class="field"><label>Katalog</label><select id="catalogSelect">' + catalogOptionsHtml(defaultCatalogId) + '</select></div>' +
         '<div class="field"><label>Fotoğraf</label>' +
-          '<label class="drop" id="drop"><span id="dropText">Fotoğraf seçmek için dokun</span><input type="file" accept="image/*" id="fileInput"></label>' +
+          '<label class="drop" id="drop">' +
+            '<div class="drop-icon">📷</div>Fotoğraf seçmek için dokun<input type="file" accept="image/*" id="fileInput"></label>' +
         '</div>' +
         '<div class="field"><label>Ürün ismi</label><input type="text" id="nameInput" placeholder="örn. Siyah deri ceket M beden"></div>' +
-        '<div class="field"><label>Not (opsiyonel)</label><textarea id="noteInput" placeholder="Renk, beden, stok kodu, fiyat vs."></textarea></div>' +
+        '<div class="field"><label>Not (opsiyonel)</label><textarea id="noteInput" placeholder="Renk, beden, stok kodu, fiyat..."></textarea></div>' +
         '<div class="modal-actions">' +
           '<button class="btn ghost" id="cancelBtn">Vazgeç</button>' +
           '<button class="btn primary" id="saveBtn">Kaydet</button>' +
-        '</div>' +
-      '</div></div>';
+        '</div></div></div></div>';
 
     var ov = document.getElementById('ov');
     var drop = document.getElementById('drop');
-    var nameInput = document.getElementById('nameInput');
-    var noteInput = document.getElementById('noteInput');
-    var saveBtn = document.getElementById('saveBtn');
     var addErr = document.getElementById('addErr');
-
-    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
-    document.getElementById('cancelBtn').addEventListener('click', closeModal);
+    ov.addEventListener('click',function(e){ if(e.target===ov) closeModal(); });
+    document.getElementById('cancelBtn').addEventListener('click',closeModal);
 
     function bindFileInput(input){
-      input.addEventListener('change', function(){
+      input.addEventListener('change',function(){
         var file = input.files[0];
         if(!file) return;
-        addErr.innerHTML = '<div style="color:var(--ink-soft);font-size:13px;margin-bottom:10px;">Fotoğraf hazırlanıyor...</div>';
-        compressImage(file, function(dataUrl){
-          imgDataUrl = dataUrl;
+        addErr.innerHTML = '<div class="info-msg">Fotoğraf hazırlanıyor...</div>';
+        compressImage(file, function(thumb, full){
+          thumbDataUrl = thumb; fullDataUrl = full;
           addErr.innerHTML = '';
           drop.classList.add('has-img');
-          drop.innerHTML = '<img src="' + dataUrl + '"><input type="file" accept="image/*" id="fileInput" style="display:none;">';
+          drop.innerHTML = '<img src="' + thumb + '"><input type="file" accept="image/*" id="fileInput" style="display:none;">';
           bindFileInput(document.getElementById('fileInput'));
         }, function(err){
           addErr.innerHTML = '<div class="err">Fotoğraf işlenemedi: ' + escapeHtml(err) + '</div>';
@@ -650,87 +993,82 @@ const INDEX_FILE_NAME = "katalog-index.json";
     }
     bindFileInput(document.getElementById('fileInput'));
 
-    saveBtn.addEventListener('click', async function(){
-      var name = nameInput.value.trim();
-      if(!name){ addErr.innerHTML = '<div class="err">Lütfen ürün ismi gir.</div>'; return; }
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'Kaydediliyor...';
+    document.getElementById('saveBtn').addEventListener('click', async function(){
+      var name = document.getElementById('nameInput').value.trim();
+      if(!name){ addErr.innerHTML='<div class="err">Lütfen ürün ismi gir.</div>'; return; }
+      var btn = document.getElementById('saveBtn');
+      btn.disabled=true; btn.textContent='Kaydediliyor...';
       try{
         var imageFileId = null;
-        if(imgDataUrl){
-          imageFileId = await uploadImage(imgDataUrl, name.replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ_\- ]/g,'').slice(0,60) || 'urun');
+        if(thumbDataUrl && fullDataUrl){
+          var safeName = name.replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ_\- ]/g,'').slice(0,60) || 'urun';
+          imageFileId = await uploadImage(thumbDataUrl, fullDataUrl, safeName);
         }
         var record = {
-          id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
-          name: name,
-          note: noteInput.value.trim(),
-          imageFileId: imageFileId,
-          catalogId: document.getElementById('catalogSelect').value || 'general',
-          createdAt: Date.now()
+          id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+          name:name, note:document.getElementById('noteInput').value.trim(),
+          imageFileId:imageFileId,
+          catalogId:document.getElementById('catalogSelect').value||'general',
+          createdAt:Date.now()
         };
         products.unshift(record);
         await saveIndex();
-        closeModal();
-        searchInput.value = '';
-        refresh();
+        closeModal(); searchInput.value=''; refresh();
+        showToast('✓ Ürün eklendi');
       }catch(e){
-        addErr.innerHTML = '<div class="err">Kaydedilemedi: ' + escapeHtml(e.message || 'bilinmeyen hata') + '</div>';
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Kaydet';
+        addErr.innerHTML='<div class="err">Kaydedilemedi: ' + escapeHtml(e.message||'bilinmeyen hata') + '</div>';
+        btn.disabled=false; btn.textContent='Kaydet';
       }
     });
   }
-  function closeModal(){ modalRoot.innerHTML = ''; }
 
   function openEditModal(p){
-    var newImgDataUrl = null;
-    var removedOldImage = false;
+    var newThumb=null, newFull=null, removedOld=false;
     modalRoot.innerHTML =
       '<div class="overlay" id="ovEdit"><div class="modal">' +
+        '<div class="modal-handle"></div><div class="modal-inner">' +
         '<h2>Ürünü Düzenle</h2>' +
         '<div id="editErr"></div>' +
         '<div class="field"><label>Katalog</label><select id="editCatalogSelect">' + catalogOptionsHtml(p.catalogId) + '</select></div>' +
         '<div class="field"><label>Fotoğraf</label>' +
           '<label class="drop has-img" id="editDrop">' +
-            (p.imageFileId ? '<img id="editPreviewImg" src="" alt="">' : '<span id="dropText">Fotoğraf seçmek için dokun</span>') +
+            (p.imageFileId ? '<img id="editPreviewImg" src="" alt="">' : '<div class="drop-icon">📷</div>Fotoğraf seçmek için dokun') +
             '<input type="file" accept="image/*" id="editFileInput">' +
           '</label>' +
         '</div>' +
         '<div class="field"><label>Ürün ismi</label><input type="text" id="editNameInput" value="' + escapeHtml(p.name) + '"></div>' +
-        '<div class="field"><label>Not (opsiyonel)</label><textarea id="editNoteInput">' + escapeHtml(p.note || '') + '</textarea></div>' +
+        '<div class="field"><label>Not (opsiyonel)</label><textarea id="editNoteInput">' + escapeHtml(p.note||'') + '</textarea></div>' +
         '<div class="modal-actions">' +
           '<button class="btn ghost" id="editCancelBtn">Vazgeç</button>' +
           '<button class="btn primary" id="editSaveBtn">Kaydet</button>' +
-        '</div>' +
-      '</div></div>';
+        '</div></div></div></div>';
 
     var ov = document.getElementById('ovEdit');
     var drop = document.getElementById('editDrop');
     var editErr = document.getElementById('editErr');
-    ov.addEventListener('click', function(e){ if(e.target === ov) closeModal(); });
-    document.getElementById('editCancelBtn').addEventListener('click', closeModal);
+    ov.addEventListener('click',function(e){ if(e.target===ov) closeModal(); });
+    document.getElementById('editCancelBtn').addEventListener('click',closeModal);
 
     if(p.imageFileId){
-      fetchImageUrl(p.imageFileId).then(function(url){
+      getImageUrl(p.imageFileId,'thumb').then(function(url){
         var img = document.getElementById('editPreviewImg');
         if(img) img.src = url;
       }).catch(function(){});
     }
 
     function bindFileInput(input){
-      input.addEventListener('change', function(){
+      input.addEventListener('change',function(){
         var file = input.files[0];
         if(!file) return;
-        editErr.innerHTML = '<div style="color:var(--ink-soft);font-size:13px;margin-bottom:10px;">Fotoğraf hazırlanıyor...</div>';
-        compressImage(file, function(dataUrl){
-          newImgDataUrl = dataUrl;
-          removedOldImage = true;
-          editErr.innerHTML = '';
+        editErr.innerHTML = '<div class="info-msg">Fotoğraf hazırlanıyor...</div>';
+        compressImage(file,function(thumb, full){
+          newThumb=thumb; newFull=full; removedOld=true;
+          editErr.innerHTML='';
           drop.classList.add('has-img');
-          drop.innerHTML = '<img src="' + dataUrl + '"><input type="file" accept="image/*" id="editFileInput" style="display:none;">';
+          drop.innerHTML='<img src="'+thumb+'"><input type="file" accept="image/*" id="editFileInput" style="display:none;">';
           bindFileInput(document.getElementById('editFileInput'));
-        }, function(err){
-          editErr.innerHTML = '<div class="err">Fotoğraf işlenemedi: ' + escapeHtml(err) + '</div>';
+        },function(err){
+          editErr.innerHTML='<div class="err">Fotoğraf işlenemedi: '+escapeHtml(err)+'</div>';
         });
       });
     }
@@ -738,107 +1076,131 @@ const INDEX_FILE_NAME = "katalog-index.json";
 
     document.getElementById('editSaveBtn').addEventListener('click', async function(){
       var name = document.getElementById('editNameInput').value.trim();
-      if(!name){ editErr.innerHTML = '<div class="err">Lütfen ürün ismi gir.</div>'; return; }
+      if(!name){ editErr.innerHTML='<div class="err">Lütfen ürün ismi gir.</div>'; return; }
       var btn = document.getElementById('editSaveBtn');
-      btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+      btn.disabled=true; btn.textContent='Kaydediliyor...';
       try{
         var newImageFileId = p.imageFileId;
-        if(newImgDataUrl){
-          newImageFileId = await uploadImage(newImgDataUrl, name.replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ_\- ]/g,'').slice(0,60) || 'urun');
-          if(p.imageFileId && removedOldImage){
-            try{ await driveFetch('https://www.googleapis.com/drive/v3/files/' + p.imageFileId, { method: 'DELETE' }); }catch(e2){}
-            delete imgUrlCache[p.imageFileId];
+        if(newThumb && newFull){
+          var safeName = name.replace(/[^a-zA-Z0-9ığüşöçİĞÜŞÖÇ_\- ]/g,'').slice(0,60)||'urun';
+          newImageFileId = await uploadImage(newThumb, newFull, safeName);
+          if(p.imageFileId && removedOld){
+            try{ await driveFetch('https://www.googleapis.com/drive/v3/files/'+p.imageFileId,{method:'DELETE'}); }catch(e2){}
+            await idbDelete(p.imageFileId);
+            if(urlCache[p.imageFileId]){
+              try{ URL.revokeObjectURL(urlCache[p.imageFileId].thumb); URL.revokeObjectURL(urlCache[p.imageFileId].full); }catch(e){}
+              delete urlCache[p.imageFileId];
+            }
           }
         }
-        p.name = name;
-        p.note = document.getElementById('editNoteInput').value.trim();
-        p.catalogId = document.getElementById('editCatalogSelect').value || 'general';
-        p.imageFileId = newImageFileId;
+        p.name=name; p.note=document.getElementById('editNoteInput').value.trim();
+        p.catalogId=document.getElementById('editCatalogSelect').value||'general';
+        p.imageFileId=newImageFileId;
         await saveIndex();
-        closeModal();
-        refresh();
+        closeModal(); refresh();
+        showToast('✓ Değişiklikler kaydedildi');
       }catch(e){
-        editErr.innerHTML = '<div class="err">Kaydedilemedi: ' + escapeHtml(e.message || 'bilinmeyen hata') + '</div>';
-        btn.disabled = false; btn.textContent = 'Kaydet';
+        editErr.innerHTML='<div class="err">Kaydedilemedi: '+escapeHtml(e.message||'bilinmeyen hata')+'</div>';
+        btn.disabled=false; btn.textContent='Kaydet';
       }
     });
   }
 
   function openDetail(p){
+    var cat = catalogs.find(function(c){ return c.id===p.catalogId; });
     modalRoot.innerHTML =
       '<div class="overlay" id="ov2"><div class="modal">' +
+        '<div class="modal-handle"></div><div class="modal-inner">' +
         '<h2>' + escapeHtml(p.name) + '</h2>' +
-        '<div class="detail-img" id="detailImgWrap"><span class="ph">yükleniyor...</span></div>' +
+        '<div class="detail-img skeleton" id="detailImgWrap"><span class="ph">yükleniyor...</span></div>' +
         (p.note ? '<p class="detail-note">' + escapeHtml(p.note) + '</p>' : '') +
+        (cat ? '<p class="detail-meta">' + escapeHtml(cat.icon||'✦') + ' ' + escapeHtml(cat.name) + '</p>' : '') +
         '<div id="delErr"></div>' +
         '<div class="modal-actions">' +
           '<button class="btn ghost" id="closeDetail">Kapat</button>' +
           '<button class="btn ghost" id="editBtn">Düzenle</button>' +
-          '<button class="btn ghost" id="dlBtn" style="display:none;">İndir</button>' +
+          '<button class="btn ghost" id="dlBtn" style="display:none;">⬇ İndir</button>' +
         '</div>' +
         '<div class="modal-actions" style="margin-top:8px;">' +
           '<button class="btn ghost" id="delBtn" style="color:var(--danger);">Ürünü Sil</button>' +
         '</div>' +
-      '</div></div>';
+        '</div></div></div>';
     var ov2 = document.getElementById('ov2');
-    ov2.addEventListener('click', function(e){ if(e.target === ov2) closeModal(); });
-    document.getElementById('closeDetail').addEventListener('click', closeModal);
-    document.getElementById('editBtn').addEventListener('click', function(){ openEditModal(p); });
+    ov2.addEventListener('click',function(e){ if(e.target===ov2) closeModal(); });
+    document.getElementById('closeDetail').addEventListener('click',closeModal);
+    document.getElementById('editBtn').addEventListener('click',function(){ openEditModal(p); });
 
     if(p.imageFileId){
-      fetchImageUrl(p.imageFileId).then(function(url){
+      getImageUrl(p.imageFileId,'full').then(function(url){
         var wrap = document.getElementById('detailImgWrap');
         if(!wrap) return;
+        wrap.classList.remove('skeleton');
         wrap.innerHTML = '<img src="' + url + '">';
         var dl = document.getElementById('dlBtn');
-        dl.style.display = 'block';
-        dl.style.textAlign = 'center';
-        dl.addEventListener('click', function(){
-          var a = document.createElement('a');
-          a.href = url;
-          a.download = (p.name || 'urun') + '.jpg';
-          document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        });
+        if(dl){
+          dl.style.display='block';
+          dl.addEventListener('click',function(){
+            var a = document.createElement('a');
+            a.href=url; a.download=(p.name||'urun')+'.jpg';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          });
+        }
       }).catch(function(){
         var wrap = document.getElementById('detailImgWrap');
-        if(wrap) wrap.innerHTML = '<span class="ph">fotoğraf yüklenemedi</span>';
+        if(wrap){ wrap.classList.remove('skeleton'); wrap.innerHTML='<span class="ph">⚠️ yüklenemedi</span>'; }
       });
     } else {
-      document.getElementById('detailImgWrap').innerHTML = '<span class="ph">fotoğraf yok</span>';
+      var wrap = document.getElementById('detailImgWrap');
+      wrap.classList.remove('skeleton');
+      wrap.innerHTML='<span class="ph">📷 fotoğraf yok</span>';
     }
 
     document.getElementById('delBtn').addEventListener('click', async function(){
       var btn = document.getElementById('delBtn');
-      btn.disabled = true; btn.textContent = 'Siliniyor...';
+      btn.disabled=true; btn.textContent='Siliniyor...';
       try{
         if(p.imageFileId){
-          try{ await driveFetch('https://www.googleapis.com/drive/v3/files/' + p.imageFileId, { method: 'DELETE' }); }catch(e2){}
+          try{ await driveFetch('https://www.googleapis.com/drive/v3/files/'+p.imageFileId,{method:'DELETE'}); }catch(e2){}
+          await idbDelete(p.imageFileId);
+          if(urlCache[p.imageFileId]){
+            try{ URL.revokeObjectURL(urlCache[p.imageFileId].thumb); URL.revokeObjectURL(urlCache[p.imageFileId].full); }catch(e){}
+            delete urlCache[p.imageFileId];
+          }
+          idbCacheCount = Math.max(0, idbCacheCount - 1);
+          updateCacheBadge();
         }
-        products = products.filter(function(x){ return x.id !== p.id; });
+        products = products.filter(function(x){ return x.id!==p.id; });
         await saveIndex();
-        closeModal();
-        refresh();
+        closeModal(); refresh();
+        showToast('🗑 Ürün silindi');
       }catch(e){
-        document.getElementById('delErr').innerHTML = '<div class="err">Silinemedi, tekrar dene.</div>';
-        btn.disabled = false; btn.textContent = 'Sil';
+        document.getElementById('delErr').innerHTML='<div class="err">Silinemedi, tekrar dene.</div>';
+        btn.disabled=false; btn.textContent='Sil';
       }
     });
   }
 
-  // Drive dosya boyutu Firestore gibi kısıtlı değil, o yüzden daha az agresif sıkıştırıyoruz.
+  function closeModal(){ modalRoot.innerHTML=''; }
+
+  /* ═══════════════════════════════════════════════
+     GÖRSEL SIKIŞTIRMA — thumb (400px) + full (1280px)
+     ═══════════════════════════════════════════════ */
   function compressImage(file, onDone, onErr){
     var reader = new FileReader();
     reader.onload = function(e){
       var img = new Image();
       img.onload = function(){
-        var maxW = 1280;
-        var scale = Math.min(1, maxW / img.width);
-        var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
-        var canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-        onDone(dataUrl);
+        function makeDataUrl(maxW, quality){
+          var scale = Math.min(1, maxW / img.width);
+          var w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+          var canvas = document.createElement('canvas');
+          canvas.width=w; canvas.height=h;
+          canvas.getContext('2d').drawImage(img,0,0,w,h);
+          return canvas.toDataURL('image/jpeg', quality);
+        }
+        var thumbDataUrl = makeDataUrl(400, 0.65);
+        var fullDataUrl  = makeDataUrl(1280, 0.82);
+        onDone(thumbDataUrl, fullDataUrl);
       };
       img.onerror = function(){ onErr('geçersiz görsel'); };
       img.src = e.target.result;
@@ -848,9 +1210,10 @@ const INDEX_FILE_NAME = "katalog-index.json";
   }
 
   addBtn.addEventListener('click', openAddModal);
-
-  // init once GIS script is ready
-  window.addEventListener('load', initTokenClient);
+  window.addEventListener('load', function(){
+    authScreen.style.display = '';
+    initTokenClient();
+  });
 })();
 </script>
 </body>
